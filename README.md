@@ -2,11 +2,12 @@
 
 Seven 的工程作品集。仓库是公开的，只放可展示的项目源码。
 
+三维建模与场景兴趣作品在 [atelier](https://github.com/seven-2077/atelier)。
+
 对应本地桥梁目录：`DeskBox/AI Tools/Grok Bot Repriority/portfolio`。
 
 ## 项目
 
-- `02-projects/design/threejs-konbini-shinkai-v2`：Three.js 雨黄昏便利店实时场景
 - `02-projects/design/electric-lotus`：设计项目
 - `02-projects/academic/learnlens`、`minidb`：学术项目
 - `02-projects/fun/`：若干可视化与交互小项目
