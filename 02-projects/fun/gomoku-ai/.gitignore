@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 测试 / 工具缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 对局产物（棋谱与报告按需保留，重跑会生成新的）
+output/*.txt
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

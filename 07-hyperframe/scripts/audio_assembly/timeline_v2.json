@@ -1,0 +1,434 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-07T22:47:28+08:00",
+ "total_duration_s": 320.06,
+ "film_end_s": 320.06,
+ "narration_end_s": 312.06,
+ "audio_mix": "assets/audio/mix_full.wav",
+ "beats": [
+  {
+   "id": "beat_xincun",
+   "start_s": 131.01,
+   "end_s": 143.01,
+   "source": "assets/video/xinhua_2024_dingxi_xincun.mp4",
+   "source_window": "0.0-12.0s",
+   "label": "种植户访谈原声（承包千亩/马铃薯2500吨）"
+  },
+  {
+   "id": "beat_babusha",
+   "start_s": 204.37,
+   "end_s": 219.37,
+   "source": "assets/video/xinhua_2023_babusha_p1.mp4",
+   "source_window": "4.98-19.98s",
+   "label": "八步沙现场讲话原声（生态保护/新时代的愚公/向你们学）"
+  }
+ ],
+ "segments": [
+  {
+   "id": "S0",
+   "start_s": 0.0,
+   "end_s": 23.2,
+   "narration_audio_s": 23.2
+  },
+  {
+   "id": "S1",
+   "start_s": 23.7,
+   "end_s": 63.22,
+   "narration_audio_s": 39.52
+  },
+  {
+   "id": "S2",
+   "start_s": 63.72,
+   "end_s": 161.48,
+   "narration_audio_s": 85.76
+  },
+  {
+   "id": "S3",
+   "start_s": 161.98,
+   "end_s": 239.7,
+   "narration_audio_s": 62.72
+  },
+  {
+   "id": "S4",
+   "start_s": 240.2,
+   "end_s": 265.8,
+   "narration_audio_s": 25.6
+  },
+  {
+   "id": "S5",
+   "start_s": 266.3,
+   "end_s": 312.06,
+   "narration_audio_s": 45.76
+  }
+ ],
+ "sentences": [
+  {
+   "seg": "S0",
+   "idx": 1,
+   "start_s": 0.0,
+   "end_s": 4.14
+  },
+  {
+   "seg": "S0",
+   "idx": 2,
+   "start_s": 4.66,
+   "end_s": 7.62
+  },
+  {
+   "seg": "S0",
+   "idx": 3,
+   "start_s": 8.32,
+   "end_s": 13.38
+  },
+  {
+   "seg": "S0",
+   "idx": 4,
+   "start_s": 14.04,
+   "end_s": 18.28
+  },
+  {
+   "seg": "S0",
+   "idx": 5,
+   "start_s": 19.0,
+   "end_s": 22.84
+  },
+  {
+   "seg": "S1",
+   "idx": 1,
+   "start_s": 23.7,
+   "end_s": 27.8
+  },
+  {
+   "seg": "S1",
+   "idx": 2,
+   "start_s": 28.56,
+   "end_s": 30.7
+  },
+  {
+   "seg": "S1",
+   "idx": 3,
+   "start_s": 31.3,
+   "end_s": 37.06
+  },
+  {
+   "seg": "S1",
+   "idx": 4,
+   "start_s": 38.0,
+   "end_s": 40.64
+  },
+  {
+   "seg": "S1",
+   "idx": 5,
+   "start_s": 41.2,
+   "end_s": 44.78
+  },
+  {
+   "seg": "S1",
+   "idx": 6,
+   "start_s": 45.38,
+   "end_s": 51.86
+  },
+  {
+   "seg": "S1",
+   "idx": 7,
+   "start_s": 52.36,
+   "end_s": 56.32
+  },
+  {
+   "seg": "S1",
+   "idx": 8,
+   "start_s": 57.18,
+   "end_s": 62.7
+  },
+  {
+   "seg": "S2",
+   "idx": 1,
+   "start_s": 63.72,
+   "end_s": 68.68
+  },
+  {
+   "seg": "S2",
+   "idx": 2,
+   "start_s": 69.9,
+   "end_s": 73.56
+  },
+  {
+   "seg": "S2",
+   "idx": 3,
+   "start_s": 74.08,
+   "end_s": 77.52
+  },
+  {
+   "seg": "S2",
+   "idx": 4,
+   "start_s": 78.2,
+   "end_s": 82.8
+  },
+  {
+   "seg": "S2",
+   "idx": 5,
+   "start_s": 82.8,
+   "end_s": 84.74
+  },
+  {
+   "seg": "S2",
+   "idx": 6,
+   "start_s": 85.6,
+   "end_s": 90.66
+  },
+  {
+   "seg": "S2",
+   "idx": 7,
+   "start_s": 91.64,
+   "end_s": 97.02
+  },
+  {
+   "seg": "S2",
+   "idx": 8,
+   "start_s": 97.6,
+   "end_s": 101.96
+  },
+  {
+   "seg": "S2",
+   "idx": 9,
+   "start_s": 102.82,
+   "end_s": 108.36
+  },
+  {
+   "seg": "S2",
+   "idx": 10,
+   "start_s": 108.82,
+   "end_s": 114.74
+  },
+  {
+   "seg": "S2",
+   "idx": 11,
+   "start_s": 115.8,
+   "end_s": 117.32
+  },
+  {
+   "seg": "S2",
+   "idx": 12,
+   "start_s": 118.24,
+   "end_s": 121.68
+  },
+  {
+   "seg": "S2",
+   "idx": 13,
+   "start_s": 121.68,
+   "end_s": 125.7
+  },
+  {
+   "seg": "S2",
+   "idx": 14,
+   "start_s": 125.7,
+   "end_s": 128.18
+  },
+  {
+   "seg": "S2",
+   "idx": 15,
+   "start_s": 128.76,
+   "end_s": 130.9
+  },
+  {
+   "seg": "S2",
+   "idx": 16,
+   "start_s": 143.12,
+   "end_s": 148.36
+  },
+  {
+   "seg": "S2",
+   "idx": 17,
+   "start_s": 148.36,
+   "end_s": 151.5
+  },
+  {
+   "seg": "S2",
+   "idx": 18,
+   "start_s": 151.5,
+   "end_s": 155.24
+  },
+  {
+   "seg": "S2",
+   "idx": 19,
+   "start_s": 155.74,
+   "end_s": 161.0
+  },
+  {
+   "seg": "S3",
+   "idx": 1,
+   "start_s": 161.98,
+   "end_s": 167.38
+  },
+  {
+   "seg": "S3",
+   "idx": 2,
+   "start_s": 167.96,
+   "end_s": 172.52
+  },
+  {
+   "seg": "S3",
+   "idx": 3,
+   "start_s": 173.0,
+   "end_s": 178.44
+  },
+  {
+   "seg": "S3",
+   "idx": 4,
+   "start_s": 178.98,
+   "end_s": 181.22
+  },
+  {
+   "seg": "S3",
+   "idx": 5,
+   "start_s": 181.76,
+   "end_s": 186.1
+  },
+  {
+   "seg": "S3",
+   "idx": 6,
+   "start_s": 186.1,
+   "end_s": 188.16
+  },
+  {
+   "seg": "S3",
+   "idx": 7,
+   "start_s": 188.8,
+   "end_s": 192.48
+  },
+  {
+   "seg": "S3",
+   "idx": 8,
+   "start_s": 192.96,
+   "end_s": 196.76
+  },
+  {
+   "seg": "S3",
+   "idx": 9,
+   "start_s": 197.34,
+   "end_s": 202.9
+  },
+  {
+   "seg": "S3",
+   "idx": 10,
+   "start_s": 202.9,
+   "end_s": 204.12
+  },
+  {
+   "seg": "S3",
+   "idx": 11,
+   "start_s": 219.62,
+   "end_s": 224.4
+  },
+  {
+   "seg": "S3",
+   "idx": 12,
+   "start_s": 225.0,
+   "end_s": 227.96
+  },
+  {
+   "seg": "S3",
+   "idx": 13,
+   "start_s": 228.58,
+   "end_s": 233.62
+  },
+  {
+   "seg": "S3",
+   "idx": 14,
+   "start_s": 234.78,
+   "end_s": 239.2
+  },
+  {
+   "seg": "S4",
+   "idx": 1,
+   "start_s": 240.34,
+   "end_s": 247.76
+  },
+  {
+   "seg": "S4",
+   "idx": 2,
+   "start_s": 248.84,
+   "end_s": 252.68
+  },
+  {
+   "seg": "S4",
+   "idx": 3,
+   "start_s": 253.86,
+   "end_s": 262.68
+  },
+  {
+   "seg": "S4",
+   "idx": 4,
+   "start_s": 263.06,
+   "end_s": 265.5
+  },
+  {
+   "seg": "S5",
+   "idx": 1,
+   "start_s": 266.3,
+   "end_s": 269.34
+  },
+  {
+   "seg": "S5",
+   "idx": 2,
+   "start_s": 269.8,
+   "end_s": 278.0
+  },
+  {
+   "seg": "S5",
+   "idx": 3,
+   "start_s": 278.94,
+   "end_s": 281.9
+  },
+  {
+   "seg": "S5",
+   "idx": 4,
+   "start_s": 283.0,
+   "end_s": 288.14
+  },
+  {
+   "seg": "S5",
+   "idx": 5,
+   "start_s": 289.06,
+   "end_s": 292.04
+  },
+  {
+   "seg": "S5",
+   "idx": 6,
+   "start_s": 292.6,
+   "end_s": 297.38
+  },
+  {
+   "seg": "S5",
+   "idx": 7,
+   "start_s": 296.76,
+   "end_s": 301.56
+  },
+  {
+   "seg": "S5",
+   "idx": 8,
+   "start_s": 302.38,
+   "end_s": 303.42
+  },
+  {
+   "seg": "S5",
+   "idx": 9,
+   "start_s": 303.62,
+   "end_s": 306.54
+  },
+  {
+   "seg": "S5",
+   "idx": 10,
+   "start_s": 307.46,
+   "end_s": 311.72
+  }
+ ],
+ "rules": {
+  "inter_segment_gap_s": 0.5,
+  "tail_card_s": 8.0,
+  "bgm": "Memories Of Stone 全片垫底: 旁白段-6dB / 让位拍-17dB / 片头0-57s+2dB / tanh软限幅-3dB / 片尾2s淡出（含8s片尾卡尾段）",
+  "narration_target_mean_db": -19.5,
+  "interview_target_mean_db": -17.0,
+  "clip_policy": "除让位拍外全部素材音轨静音（AUDIO_ANALYSIS.md 第三节）"
+ }
+}

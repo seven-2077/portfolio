@@ -1,0 +1,80 @@
+import {
+  BoxGeometry,
+  Color,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  PlaneGeometry,
+} from 'three';
+import type { EnvUniformSnapshot } from '../env/Environment';
+import { Hex } from '../env/palette';
+
+/** Far silhouettes + air-purple massing so the sky has a horizon to sit on. */
+export class Distant {
+  readonly group = new Group();
+  private mats: MeshStandardMaterial[] = [];
+
+  constructor() {
+    this.group.name = 'distant';
+    const blocks: Array<[number, number, number, number, number, number, number]> = [
+      // x, y, z, sx, sy, sz, color
+      [-18, 5, -16, 7, 10, 6, 0x2a3448],
+      [-10, 4.2, -18, 6, 8.4, 5, 0x243040],
+      [-2, 6, -20, 8, 12, 6, 0x2c384c],
+      [8, 3.8, -17, 5.5, 7.6, 5, 0x263244],
+      [16, 5.5, -19, 7, 11, 6, 0x2a3648],
+      [22, 3.2, -12, 5, 6.4, 4, 0x243040],
+      [-24, 4, -8, 6, 8, 5, 0x222e40],
+    ];
+    for (const [x, y, z, sx, sy, sz, col] of blocks) {
+      const mat = new MeshStandardMaterial({
+        color: col,
+        roughness: 0.92,
+        metalness: 0,
+        emissive: new Color(Hex.airPurple),
+        emissiveIntensity: 0.04,
+      });
+      this.mats.push(mat);
+      const m = new Mesh(new BoxGeometry(sx, sy, sz), mat);
+      m.position.set(x, y, z);
+      this.group.add(m);
+      // sparse warm windows
+      const win = new MeshStandardMaterial({
+        color: 0xffd8a8,
+        emissive: new Color(0xffc878),
+        emissiveIntensity: 0.55,
+      });
+      this.mats.push(win);
+      for (let i = 0; i < 6; i++) {
+        if (((x * 13 + i * 7) | 0) % 3 === 0) continue;
+        const w = new Mesh(new PlaneGeometry(0.35, 0.5), win);
+        w.position.set(
+          x + ((i % 3) - 1) * sx * 0.22,
+          y - sy * 0.25 + Math.floor(i / 3) * 1.4,
+          z + sz * 0.51,
+        );
+        this.group.add(w);
+      }
+    }
+  }
+
+  applyEnvironment(u: EnvUniformSnapshot): void {
+    for (const m of this.mats) {
+      if (m.color.getHex() === 0xffd8a8 || m.emissive.getHex() === 0xffc878) {
+        m.emissiveIntensity = 0.25 + u.nightFactor * 0.55 + u.twilight * 0.2;
+      } else {
+        m.emissiveIntensity = 0.03 + u.fogDensity * 1.2;
+      }
+    }
+  }
+
+  dispose(): void {
+    this.group.traverse((o) => {
+      if (o instanceof Mesh) {
+        o.geometry.dispose();
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) m.dispose();
+      }
+    });
+  }
+}

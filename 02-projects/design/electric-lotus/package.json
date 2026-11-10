@@ -1,0 +1,14 @@
+{
+  "name": "electric-lotus",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "电莲花 · 交互式跑车配置器（three.js + GLSL + Canvas2D + WebAudio）",
+  "scripts": {
+    "serve": "python -m http.server 8031",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  }
+}

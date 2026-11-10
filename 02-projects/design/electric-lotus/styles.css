@@ -1,0 +1,381 @@
+/* 电莲花 · 车展信息牌（show-floor placard）UI 外壳
+   琥珀 #ffb454 主 accent / 深玻璃面板 / 全系统字体，零外部资源 */
+
+:root {
+  --bg: #0a0e14;
+  --glass: rgba(10, 14, 20, 0.72);
+  --line: #2a3242;
+  --amber: #ffb454;
+  --ink: #e9edf5;
+  --muted: #b3a999;
+  --mono: "Cascadia Mono", "Consolas", "Courier New", monospace;
+  --sans: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+canvas {
+  display: block;
+}
+::selection {
+  background: rgba(255, 180, 84, 0.3);
+}
+
+/* WebGL 画布（three 自行追加）与 #root 容器：垫底 */
+#root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+body > canvas:not(#hud-canvas),
+#root > canvas:not(#hud-canvas) {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* HUD 画布：交互反馈层，点击穿透 */
+#hud-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 启动错误（原行为保留） */
+#boot-error {
+  position: fixed;
+  left: 24px;
+  top: 24px;
+  color: #ff6b6b;
+  font: 14px/1.6 monospace;
+  white-space: pre-wrap;
+  z-index: 99;
+}
+
+/* ── #brand 品牌牌 ─────────────────────────────── */
+#brand {
+  position: fixed;
+  left: 26px;
+  top: 22px;
+  z-index: 3;
+  pointer-events: none;
+  user-select: none;
+}
+.brand-word {
+  font: 700 44px/1 var(--sans);
+  color: var(--ink);
+  letter-spacing: 0.2em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.65);
+}
+.brand-word .accent,
+.splash-word .accent {
+  color: var(--amber);
+}
+.brand-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font: 600 11px/1.5 var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+.brand-sub::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: var(--amber);
+  flex: none;
+}
+
+/* ── #panel 控制面板 ───────────────────────────── */
+#panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: 300px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 22px;
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+#panel::-webkit-scrollbar {
+  width: 6px;
+}
+#panel::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+#panel::-webkit-scrollbar-thumb:hover {
+  background: var(--amber);
+}
+
+/* 分组标题：等宽大写 + 细分隔线 */
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 10px;
+  font: 600 10px/1 var(--mono);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.panel-title:first-child {
+  margin-top: 0;
+}
+.panel-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+/* 分组：双列网格 + 发丝分隔 */
+.panel-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(42, 50, 66, 0.55);
+}
+.panel-group:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.panel-group label {
+  grid-column: 1 / -1;
+}
+
+/* 按钮：暗色扁平芯片，悬停抬升 + 琥珀描边；.is-active = 琥珀填充 */
+#panel button {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font: 500 12.5px/1.2 var(--sans);
+  color: var(--ink);
+  background: rgba(22, 28, 40, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 9px 10px;
+  min-height: 34px;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+#panel button:hover {
+  transform: translateY(-1px);
+  border-color: var(--amber);
+  color: #ffd9a5;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+#panel button:active {
+  transform: translateY(0);
+}
+#panel button.is-active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #171204;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(255, 180, 84, 0.28);
+}
+#panel button.is-active:hover {
+  color: #171204;
+}
+#panel button:focus-visible {
+  outline: 1px solid var(--amber);
+  outline-offset: 2px;
+}
+button[data-action="turntable"],
+button[data-action="toggle-explode"] {
+  grid-column: 1 / -1;
+}
+
+/* 滑杆行：中文标签 + 琥珀滑块 + 等宽数值 */
+#panel label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 3.4em;
+  align-items: center;
+  gap: 10px;
+  font: 500 12.5px/1 var(--sans);
+  color: var(--muted);
+}
+#panel output {
+  font: 600 11px/1 var(--mono);
+  color: var(--amber);
+  text-align: right;
+  letter-spacing: 0.06em;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border: none;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 3px rgba(255, 180, 84, 0.16);
+  transition: box-shadow 0.15s ease;
+}
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(255, 180, 84, 0.26);
+}
+input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--amber);
+}
+input[type="range"]:focus-visible {
+  outline: none;
+}
+
+/* ── #part-readout 零件信息牌（右下，空则隐藏） ── */
+#part-readout {
+  position: fixed;
+  right: 332px;
+  bottom: 24px;
+  z-index: 3;
+  padding: 9px 14px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--amber);
+  border-radius: 3px;
+  font: 500 12px/1.5 var(--mono);
+  color: var(--ink);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  user-select: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+#part-readout:empty {
+  display: none;
+}
+#part-readout[data-empty]:not([data-empty="false"]) {
+  display: none;
+}
+
+/* ── #splash 开屏遮罩 ─────────────────────────── */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+#splash.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-mark {
+  text-align: center;
+}
+.splash-word {
+  font: 700 64px/1 var(--sans);
+  color: var(--ink);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+.splash-sub {
+  margin-top: 16px;
+  font: 600 11px/1 var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+}
+.splash-bar {
+  width: 200px;
+  height: 1px;
+  margin: 30px auto 0;
+  background: var(--line);
+  overflow: hidden;
+}
+.splash-bar span {
+  display: block;
+  width: 45%;
+  height: 100%;
+  background: var(--amber);
+  animation: splash-sweep 1.15s ease-in-out infinite;
+}
+@keyframes splash-sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(340%);
+  }
+}
+
+/* ── 窄屏收敛（1920×1080 为基准） ─────────────── */
+@media (max-width: 1440px) {
+  #panel {
+    width: 268px;
+  }
+  #part-readout {
+    right: 300px;
+  }
+  .brand-word {
+    font-size: 34px;
+  }
+  .splash-word {
+    font-size: 48px;
+  }
+}
+@media (max-width: 1120px) {
+  #panel {
+    width: 240px;
+    padding: 14px 14px 18px;
+  }
+  #part-readout {
+    right: 268px;
+  }
+}

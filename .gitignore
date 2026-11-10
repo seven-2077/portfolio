@@ -1,0 +1,48 @@
+# dependencies and builds
+node_modules/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.cache/
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# media and render output
+*.mp4
+*.mov
+*.wav
+*.mp3
+.thumbnails/
+.hyperframes/
+renders/
+output/
+
+# local git backup (do not nest)
+.git-local-backup/
+
+# reference stills and style originals
+**/01-refs/
+**/00-brief/**/*.png
+**/00-brief/**/*.jpg
+**/00-brief/**/*.jpeg
+**/00-brief/**/*.webp
+**/00-brief/**/*.gif
+
+# heavy vendor / binary assets
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.blend
+*.blend1
+
+# os
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,16 @@
+{
+  "name": "塔楼",
+  "world": { "width": 96, "height": 32, "gravity": 30 },
+  "ground_y": 28,
+  "sling": [10, 24],
+  "ammo": 3,
+  "blocks": [
+    { "x": 58, "y": 26, "w": 1, "h": 4, "material": "wood" },
+    { "x": 64, "y": 26, "w": 1, "h": 4, "material": "wood" },
+    { "x": 61, "y": 23.5, "w": 8, "h": 1, "material": "wood" },
+    { "x": 59.5, "y": 21.5, "w": 1, "h": 3, "material": "glass" },
+    { "x": 62.5, "y": 21.5, "w": 1, "h": 3, "material": "glass" },
+    { "x": 61, "y": 19.5, "w": 5, "h": 1, "material": "wood" },
+    { "x": 61, "y": 18.5, "w": 1, "h": 1, "material": "glass" }
+  ]
+}

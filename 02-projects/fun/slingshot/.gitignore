@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行产物（demo 每次运行会重新生成）
+output/*.svg
+
+# 系统 / 编辑器
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp

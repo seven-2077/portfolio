@@ -1,0 +1,146 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "moss_image_sft_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "2": {
+      "class_type": "ModelSamplingAuraFlow",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ],
+        "shift": 5,
+        "sampling": "flow"
+      }
+    },
+    "4": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "qwen3.5_9b_w4a8_gptq.safetensors",
+        "type": "moss_image",
+        "device": "default"
+      }
+    },
+    "5": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "flux2-vae.safetensors"
+      }
+    },
+    "6": {
+      "class_type": "MossMangaLayout",
+      "inputs": {
+        "layout_json": "{\"summary\": {\"caption\": \"A restrained documentary end-credits card themed on the Gansu landscape: deep ink-teal night sky, the Yellow River winding as a softly glowing golden ribbon across the lower third over near-black loess plateau and dune silhouettes, a small distant Great Wall beacon tower on the right ridge, sparse golden star dust, a minimal museum-style hairline golden frame with short corner brackets and one tiny five-pointed star at the top center, all text in refined golden serif Chinese type, centered and calm, large empty dark space kept in the middle.\", \"palette\": [\"deep ink-teal night\", \"golden river glow\", \"near-black silhouettes\", \"ivory-gold text\"]}, \"items\": [{\"panel\": 1, \"slot\": \"F\", \"label\": \"object\", \"caption\": \"Full-page background: deep ink-teal to midnight-blue night gradient; across the lower third, clearly visible layered loess plateau and dune ridges in near-black silhouette against a soft teal horizon glow; the Yellow River winds prominently across the scene as a glowing golden ribbon of light; on the right ridge a clearly visible small silhouette of a Great Wall beacon tower against the glowing horizon; sparse subtle golden star dust in the sky; the upper center is quiet empty dark sky for the text, solemn and cinematic, no people.\"}, {\"panel\": 1, \"slot\": \"C\", \"label\": \"object\", \"caption\": \"Minimal museum frame: one very thin golden hairline rectangle inset from the edges, a short brighter right-angle bracket at each of the four corners, one tiny golden five-pointed star centered on the top edge of the frame; no floral patterns, no repeating motifs, clean and restrained.\"}, {\"panel\": 1, \"slot\": \"T\", \"label\": \"text\", \"caption\": \"Main film title, very large elegant golden Chinese serif lettering, centered horizontally, single line.\", \"text\": \"足迹里的思政课\"}, {\"panel\": 1, \"slot\": \"SUB\", \"label\": \"text\", \"caption\": \"Subtitle line, small golden Chinese lettering with wide letter spacing, centered directly under the title.\", \"text\": \"甘肃足迹\"}, {\"panel\": 1, \"slot\": \"DIV\", \"label\": \"object\", \"caption\": \"A single thin horizontal gold divider line with one tiny diamond accent at its center.\"}, {\"panel\": 1, \"slot\": \"N_1\", \"label\": \"text\", \"caption\": \"Credits line one, small golden Chinese serif lettering, centered, clearly smaller than the film title, modest and understated.\", \"text\": \"组长：何谭昕\"}, {\"panel\": 1, \"slot\": \"N_2\", \"label\": \"text\", \"caption\": \"Credits line two, small golden Chinese serif lettering, same size as the line above, centered, names separated by middle dots.\", \"text\": \"组员：李安 · 梁日皓 · 唐子帆\"}]}",
+        "layout_id": "ending_card_gansu",
+        "layout_snapshot": "{\"id\": \"ending_card_gansu\", \"label\": \"甘肃足迹·片尾演职员卡\", \"description\": \"深青黑夜色沙丘背景的片尾卡：金色敦煌风双线框与四角卷草纹，中央自上而下金色彩色文字——片名、副题、装饰分隔、组长与组员名单。\", \"usage\": \"单格整页片尾卡。背景为夜色下的陇原大地：黄河如一条微光金色缎带蜿蜒于画面下部，远景山脊上有长城烽燧剪影，稀疏星尘；极简金色发丝线内框，四角短直角括线，框顶正中一枚小金星；文字为金色衬线体居中，自上而下：主片名、副题、细分隔线、组长行、组员行（名单字号小于片名）。框用途是内容分配说明，不作为图中文字。\", \"readingOrder\": \"F → C → T → SUB → DIV → N_1 → N_2\", \"canvas\": {\"width\": 1456, \"height\": 816}, \"panels\": [{\"position\": \"card\", \"layer\": 0, \"slots\": {\"F\": [-404, -724, 404, 724], \"C\": [-376, -692, 376, 692], \"T\": [-270, -560, -120, 560], \"SUB\": [-110, -300, -45, 300], \"DIV\": [-15, -260, 45, 260], \"N_1\": [95, -400, 159, 400], \"N_2\": [179, -460, 243, 460]}, \"slotNotes\": {\"F\": \"全页背景：深青黑到墨蓝的夜空渐变，画面下三分之一是清晰可辨的层叠高原与沙丘近黑剪影，地平线泛着柔和青光；黄河作为一条明亮的金色发光缎带蜿蜒横贯画面下部，右侧山脊上一座清晰的长城烽燧剪影衬着微亮天际，天空疏朗金色星尘，上中部留安静夜空给文字，庄重有电影感。\", \"C\": \"极简边框：一条很细的金色发丝线矩形内框，四角各一枚略亮的短直角括线，框顶正中一枚很小的金色五角星；无花纹、无重复装饰母题，干净素雅。\", \"T\": \"主片名，大号金色衬线中文字，居中排布，字形优雅庄重。\", \"SUB\": \"副题一行，小号金色中文字，字距拉开，居中。\", \"DIV\": \"细分隔线：一条细金线，正中一枚很小的菱形点。\", \"N_1\": \"名单第一行，小号金色衬线中文，居中，字号明显小于片名，克制内敛。\", \"N_2\": \"名单第二行，小号金色衬线中文，居中，字号与上一行一致，姓名之间用间隔号分开。\"}}], \"promptMode\": \"llm\"}"
+      }
+    },
+    "7": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "4",
+          0
+        ],
+        "text": [
+          "6",
+          0
+        ]
+      }
+    },
+    "8": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "4",
+          0
+        ],
+        "text": "lowres, bad anatomy, extra fingers, fused fingers, deformed hands, extra limbs, blurry, jpeg artifacts, watermark, signature, cropped, out of frame, worst quality, low quality, gibberish text, unreadable text, misspelled text"
+      }
+    },
+    "9": {
+      "class_type": "EmptyFlux2LatentImage",
+      "inputs": {
+        "width": [
+          "6",
+          1
+        ],
+        "height": [
+          "6",
+          2
+        ],
+        "batch_size": 1
+      }
+    },
+    "10": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": [
+          "13",
+          0
+        ],
+        "positive": [
+          "7",
+          0
+        ],
+        "negative": [
+          "8",
+          0
+        ],
+        "latent_image": [
+          "9",
+          0
+        ],
+        "seed": 20261107,
+        "steps": 4,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "sgm_uniform",
+        "denoise": 1
+      }
+    },
+    "11": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "10",
+          0
+        ],
+        "vae": [
+          "5",
+          0
+        ]
+      }
+    },
+    "12": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": [
+          "11",
+          0
+        ],
+        "filename_prefix": "ending_card_gansu"
+      }
+    },
+    "13": {
+      "class_type": "LoadLoraModel",
+      "inputs": {
+        "model": [
+          "2",
+          0
+        ],
+        "loras.0.lora_name": "KOOK-MOSS-SFT-观澜.safetensors",
+        "loras.0.strength": 1,
+        "loras.0.enabled": true,
+        "loras.1.lora_name": "【Moss】MOSS-4步加速LoRA-v2.0.safetensors",
+        "loras.1.strength": 1,
+        "loras.1.enabled": true
+      }
+    }
+  }
+}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>电莲花 electric-lotus · 交互式跑车配置器</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./node_modules/three/build/three.module.js",
+          "three/addons/": "./node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <!-- WebGL 舞台容器（scene.js 把 canvas 挂进来） -->
+    <div id="root"></div>
+    <!-- Canvas2D HUD 覆盖层（引线标签 / 选中高亮 / 功率表） -->
+    <canvas id="hud-canvas"></canvas>
+
+    <!-- 品牌牌 -->
+    <div id="brand">
+      <div class="brand-word">电<span class="accent">莲</span>花</div>
+      <div class="brand-sub">Electric Lotus · Theory Configurator</div>
+    </div>
+
+    <!-- 车展信息牌控制面板 -->
+    <aside id="panel">
+      <div class="panel-title">视角 Camera</div>
+      <div class="panel-group">
+        <button data-action="preset" data-preset="front34">前 3/4</button>
+        <button data-action="preset" data-preset="side">侧视</button>
+        <button data-action="preset" data-preset="cockpit">座舱</button>
+        <button data-action="preset" data-preset="top">俯视</button>
+        <button data-action="turntable" aria-pressed="false">转盘旋转</button>
+        <button data-action="toggle-explode">拆解</button>
+      </div>
+
+      <div class="panel-title">喷漆 Paint</div>
+      <div class="panel-group">
+        <label
+          >色相
+          <input type="range" data-paint data-param="hue" min="0" max="360" step="1" />
+          <output></output
+        ></label>
+        <label
+          >饱和
+          <input type="range" data-paint data-param="saturation" min="0" max="100" step="1" />
+          <output></output
+        ></label>
+        <label
+          >金属
+          <input type="range" data-paint data-param="metalness" min="0" max="100" step="1" />
+          <output></output
+        ></label>
+        <label
+          >清漆
+          <input type="range" data-paint data-param="clearcoat" min="0" max="100" step="1" />
+          <output></output
+        ></label>
+        <button data-action="paint-preset" data-preset-id="lotus_yellow">莲花黄</button>
+        <button data-action="paint-preset" data-preset-id="meteor_grey">流星灰</button>
+        <button data-action="paint-preset" data-preset-id="pearl_white">珍珠白</button>
+        <button data-action="paint-preset" data-preset-id="track_green">赛道绿</button>
+      </div>
+
+      <div class="panel-title">展台 Stage</div>
+      <div class="panel-group">
+        <button data-action="background" data-bg="auto_show">车展大厅</button>
+        <button data-action="background" data-bg="wind_tunnel">风洞实验室</button>
+        <button data-action="background" data-bg="studio">摄影影棚</button>
+        <button data-action="background" data-bg="night_road">夜间公路</button>
+      </div>
+
+      <div class="panel-title">配件 Accessories</div>
+      <div class="panel-group">
+        <button data-accessory data-group="wheel" data-value="forged">锻造轮毂</button>
+        <button data-accessory data-group="wheel" data-value="turbine">气动涡轮</button>
+        <button data-accessory data-group="wheel" data-value="petal">莲花瓣</button>
+        <button data-accessory data-group="wing" data-value="gt">GT 尾翼</button>
+        <button data-accessory data-group="wing" data-value="ducktail">鸭尾唇</button>
+        <button data-accessory data-group="skirts">侧裙开关</button>
+        <button data-accessory data-group="caliper" data-value="red">红卡钳</button>
+        <button data-accessory data-group="caliper" data-value="gold">金卡钳</button>
+        <button data-accessory data-group="caliper" data-value="black">黑卡钳</button>
+      </div>
+
+      <div class="panel-title">系统 System</div>
+      <div class="panel-group">
+        <button data-action="audio" aria-pressed="false">声音开关</button>
+        <button data-action="rev">电机轰鸣</button>
+        <button data-action="export-glb">导出 GLB</button>
+        <button data-action="export-config">导出配置</button>
+      </div>
+    </aside>
+
+    <!-- 零件信息牌（拾取后由 panel 填充，空则隐藏） -->
+    <div id="part-readout"></div>
+
+    <!-- 开屏遮罩（首帧渲染后由 main.js 收起） -->
+    <div id="splash">
+      <div class="splash-mark">
+        <div class="splash-word">电<span class="accent">莲</span>花</div>
+        <div class="splash-sub">Electric Lotus · Configurator</div>
+        <div class="splash-bar"><span></span></div>
+      </div>
+    </div>
+
+    <div id="boot-error" hidden></div>
+
+    <script type="module">
+      // 最小加载链自检：three / addons / main 全部就位后由 main.js 接管
+      window.addEventListener("error", (e) => {
+        const el = document.getElementById("boot-error");
+        el.hidden = false;
+        el.textContent = "BOOT ERROR: " + (e.message || e.reason || e);
+      });
+      import("./src/main.js").catch((err) => {
+        const el = document.getElementById("boot-error");
+        el.hidden = false;
+        el.textContent = "BOOT ERROR: " + err;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="760" viewBox="0 0 760 760" font-family="Segoe UI, Microsoft YaHei, sans-serif">
+<rect width="760" height="760" fill="#0b1020"/>
+<text x="380.00" y="44.00" font-size="21" fill="#e8ecf8" text-anchor="middle" font-weight="bold">黄道星图 · 2026-11-05 04:32 UTC</text>
+<text x="380.00" y="66.00" font-size="12" fill="#8fa0c8" text-anchor="middle" font-weight="normal">JD 2461349.7 · 地心黄经 · 简化 J2000 历表（约 ±1°）</text>
+<path d="M 696.00,396.00 A 316.0,316.0 0 0 0 653.66,238.00 L 606.90,265.00 A 262.0,262.0 0 0 1 642.00,396.00 Z" fill="#131b33" stroke="none"/>
+<path d="M 653.66,238.00 A 316.0,316.0 0 0 0 538.00,122.34 L 511.00,169.10 A 262.0,262.0 0 0 1 606.90,265.00 Z" fill="#0f152a" stroke="none"/>
+<path d="M 538.00,122.34 A 316.0,316.0 0 0 0 380.00,80.00 L 380.00,134.00 A 262.0,262.0 0 0 1 511.00,169.10 Z" fill="#131b33" stroke="none"/>
+<path d="M 380.00,80.00 A 316.0,316.0 0 0 0 222.00,122.34 L 249.00,169.10 A 262.0,262.0 0 0 1 380.00,134.00 Z" fill="#0f152a" stroke="none"/>
+<path d="M 222.00,122.34 A 316.0,316.0 0 0 0 106.34,238.00 L 153.10,265.00 A 262.0,262.0 0 0 1 249.00,169.10 Z" fill="#131b33" stroke="none"/>
+<path d="M 106.34,238.00 A 316.0,316.0 0 0 0 64.00,396.00 L 118.00,396.00 A 262.0,262.0 0 0 1 153.10,265.00 Z" fill="#0f152a" stroke="none"/>
+<path d="M 64.00,396.00 A 316.0,316.0 0 0 0 106.34,554.00 L 153.10,527.00 A 262.0,262.0 0 0 1 118.00,396.00 Z" fill="#131b33" stroke="none"/>
+<path d="M 106.34,554.00 A 316.0,316.0 0 0 0 222.00,669.66 L 249.00,622.90 A 262.0,262.0 0 0 1 153.10,527.00 Z" fill="#0f152a" stroke="none"/>
+<path d="M 222.00,669.66 A 316.0,316.0 0 0 0 380.00,712.00 L 380.00,658.00 A 262.0,262.0 0 0 1 249.00,622.90 Z" fill="#131b33" stroke="none"/>
+<path d="M 380.00,712.00 A 316.0,316.0 0 0 0 538.00,669.66 L 511.00,622.90 A 262.0,262.0 0 0 1 380.00,658.00 Z" fill="#0f152a" stroke="none"/>
+<path d="M 538.00,669.66 A 316.0,316.0 0 0 0 653.66,554.00 L 606.90,527.00 A 262.0,262.0 0 0 1 511.00,622.90 Z" fill="#131b33" stroke="none"/>
+<path d="M 653.66,554.00 A 316.0,316.0 0 0 0 696.00,396.00 L 642.00,396.00 A 262.0,262.0 0 0 1 606.90,527.00 Z" fill="#0f152a" stroke="none"/>
+<line x1="642.00" y1="396.00" x2="696.00" y2="396.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="606.90" y1="265.00" x2="653.66" y2="238.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="511.00" y1="169.10" x2="538.00" y2="122.34" stroke="#46598f" stroke-width="1.4"/>
+<line x1="380.00" y1="134.00" x2="380.00" y2="80.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="249.00" y1="169.10" x2="222.00" y2="122.34" stroke="#46598f" stroke-width="1.4"/>
+<line x1="153.10" y1="265.00" x2="106.34" y2="238.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="118.00" y1="396.00" x2="64.00" y2="396.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="153.10" y1="527.00" x2="106.34" y2="554.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="249.00" y1="622.90" x2="222.00" y2="669.66" stroke="#46598f" stroke-width="1.4"/>
+<line x1="380.00" y1="658.00" x2="380.00" y2="712.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="511.00" y1="622.90" x2="538.00" y2="669.66" stroke="#46598f" stroke-width="1.4"/>
+<line x1="606.90" y1="527.00" x2="653.66" y2="554.00" stroke="#46598f" stroke-width="1.4"/>
+<line x1="691.20" y1="341.13" x2="682.34" y2="342.69" stroke="#5a6da8" stroke-width="1"/>
+<line x1="676.94" y1="287.92" x2="668.49" y2="291.00" stroke="#5a6da8" stroke-width="1"/>
+<line x1="622.07" y1="192.88" x2="615.18" y2="198.66" stroke="#5a6da8" stroke-width="1"/>
+<line x1="583.12" y1="153.93" x2="577.34" y2="160.82" stroke="#5a6da8" stroke-width="1"/>
+<line x1="488.08" y1="99.06" x2="485.00" y2="107.51" stroke="#5a6da8" stroke-width="1"/>
+<line x1="434.87" y1="84.80" x2="433.31" y2="93.66" stroke="#5a6da8" stroke-width="1"/>
+<line x1="325.13" y1="84.80" x2="326.69" y2="93.66" stroke="#5a6da8" stroke-width="1"/>
+<line x1="271.92" y1="99.06" x2="275.00" y2="107.51" stroke="#5a6da8" stroke-width="1"/>
+<line x1="176.88" y1="153.93" x2="182.66" y2="160.82" stroke="#5a6da8" stroke-width="1"/>
+<line x1="137.93" y1="192.88" x2="144.82" y2="198.66" stroke="#5a6da8" stroke-width="1"/>
+<line x1="83.06" y1="287.92" x2="91.51" y2="291.00" stroke="#5a6da8" stroke-width="1"/>
+<line x1="68.80" y1="341.13" x2="77.66" y2="342.69" stroke="#5a6da8" stroke-width="1"/>
+<line x1="68.80" y1="450.87" x2="77.66" y2="449.31" stroke="#5a6da8" stroke-width="1"/>
+<line x1="83.06" y1="504.08" x2="91.51" y2="501.00" stroke="#5a6da8" stroke-width="1"/>
+<line x1="137.93" y1="599.12" x2="144.82" y2="593.34" stroke="#5a6da8" stroke-width="1"/>
+<line x1="176.88" y1="638.07" x2="182.66" y2="631.18" stroke="#5a6da8" stroke-width="1"/>
+<line x1="271.92" y1="692.94" x2="275.00" y2="684.49" stroke="#5a6da8" stroke-width="1"/>
+<line x1="325.13" y1="707.20" x2="326.69" y2="698.34" stroke="#5a6da8" stroke-width="1"/>
+<line x1="434.87" y1="707.20" x2="433.31" y2="698.34" stroke="#5a6da8" stroke-width="1"/>
+<line x1="488.08" y1="692.94" x2="485.00" y2="684.49" stroke="#5a6da8" stroke-width="1"/>
+<line x1="583.12" y1="638.07" x2="577.34" y2="631.18" stroke="#5a6da8" stroke-width="1"/>
+<line x1="622.07" y1="599.12" x2="615.18" y2="593.34" stroke="#5a6da8" stroke-width="1"/>
+<line x1="676.94" y1="504.08" x2="668.49" y2="501.00" stroke="#5a6da8" stroke-width="1"/>
+<line x1="691.20" y1="450.87" x2="682.34" y2="449.31" stroke="#5a6da8" stroke-width="1"/>
+<text x="628.00" y="399.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">0°</text>
+<text x="594.77" y="275.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">30°</text>
+<text x="504.00" y="184.73" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">60°</text>
+<text x="380.00" y="151.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">90°</text>
+<text x="256.00" y="184.73" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">120°</text>
+<text x="165.23" y="275.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">150°</text>
+<text x="132.00" y="399.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">180°</text>
+<text x="165.23" y="523.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">210°</text>
+<text x="256.00" y="614.27" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">240°</text>
+<text x="380.00" y="647.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">270°</text>
+<text x="504.00" y="614.27" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">300°</text>
+<text x="594.77" y="523.50" font-size="10" fill="#7d8cb8" text-anchor="middle" font-weight="normal">330°</text>
+<text x="659.15" y="326.20" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">白羊 ♈</text>
+<text x="584.35" y="196.65" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">金牛 ♉</text>
+<text x="454.80" y="121.85" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">双子 ♊</text>
+<text x="305.20" y="121.85" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">巨蟹 ♋</text>
+<text x="175.65" y="196.65" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">狮子 ♌</text>
+<text x="100.85" y="326.20" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">处女 ♍</text>
+<text x="100.85" y="475.80" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">天秤 ♎</text>
+<text x="175.65" y="605.35" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">天蝎 ♏</text>
+<text x="305.20" y="680.15" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">射手 ♐</text>
+<text x="454.80" y="680.15" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">摩羯 ♑</text>
+<text x="584.35" y="605.35" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">水瓶 ♒</text>
+<text x="659.15" y="475.80" font-size="14" fill="#cdd7f5" text-anchor="middle" font-weight="normal">双鱼 ♓</text>
+<circle cx="380.0" cy="396.0" r="316.0" fill="none" stroke="#46598f" stroke-width="1.6"/>
+<circle cx="380.0" cy="396.0" r="262.0" fill="none" stroke="#46598f" stroke-width="1.2"/>
+<line x1="357.85" y1="416.23" x2="300.24" y2="468.82" stroke="#ffb340" stroke-width="1.2" opacity="0.55"/>
+<circle cx="300.24" cy="468.82" r="9" fill="#ffb340" stroke="#0b1020" stroke-width="1.5"/>
+<text x="284.00" y="487.66" font-size="13" fill="#ffb340" text-anchor="middle" font-weight="normal">☉太阳 222.4°</text>
+<line x1="635.90" y1="388.81" x2="613.91" y2="389.43" stroke="#6a8cff" stroke-width="1.1" opacity="0.5"/>
+<circle cx="613.91" cy="389.43" r="6.5" fill="#6a8cff" stroke="#0b1020" stroke-width="1.5"/>
+<text x="624.91" y="393.43" font-size="12.5" fill="#6a8cff" text-anchor="start" font-weight="normal">♆海王星 1.6°</text>
+<line x1="633.03" y1="357.13" x2="581.63" y2="365.02" stroke="#d9c76b" stroke-width="1.1" opacity="0.5"/>
+<circle cx="581.63" cy="365.02" r="6.5" fill="#d9c76b" stroke="#0b1020" stroke-width="1.5"/>
+<text x="592.63" y="369.02" font-size="12.5" fill="#d9c76b" text-anchor="start" font-weight="normal">♄土星 8.7°</text>
+<line x1="491.66" y1="165.64" x2="455.90" y2="239.43" stroke="#5fd3c8" stroke-width="1.1" opacity="0.5"/>
+<circle cx="455.90" cy="239.43" r="6.5" fill="#5fd3c8" stroke="#0b1020" stroke-width="1.5"/>
+<text x="466.90" y="243.43" font-size="12.5" fill="#5fd3c8" text-anchor="start" font-weight="normal">♅天王星 64.1°</text>
+<line x1="182.96" y1="232.56" x2="269.17" y2="304.07" stroke="#e2574c" stroke-width="1.1" opacity="0.5"/>
+<circle cx="269.17" cy="304.07" r="6.5" fill="#e2574c" stroke="#0b1020" stroke-width="1.5"/>
+<text x="258.17" y="308.07" font-size="12.5" fill="#e2574c" text-anchor="end" font-weight="normal">♂火星 140.3°</text>
+<line x1="171.68" y1="247.21" x2="189.58" y2="260.00" stroke="#e0a35c" stroke-width="1.1" opacity="0.5"/>
+<circle cx="189.58" cy="260.00" r="6.5" fill="#e0a35c" stroke="#0b1020" stroke-width="1.5"/>
+<text x="178.58" y="264.00" font-size="12.5" fill="#e0a35c" text-anchor="end" font-weight="normal">♃木星 144.5°</text>
+<line x1="146.26" y1="500.40" x2="193.74" y2="479.20" stroke="#f2c14e" stroke-width="1.1" opacity="0.5"/>
+<circle cx="193.74" cy="479.20" r="6.5" fill="#f2c14e" stroke="#0b1020" stroke-width="1.5"/>
+<text x="182.74" y="483.20" font-size="12.5" fill="#f2c14e" text-anchor="end" font-weight="normal">♀金星 204.1°</text>
+<line x1="186.90" y1="564.07" x2="248.75" y2="510.23" stroke="#9aa0a6" stroke-width="1.1" opacity="0.5"/>
+<circle cx="248.75" cy="510.23" r="6.5" fill="#9aa0a6" stroke="#0b1020" stroke-width="1.5"/>
+<text x="237.75" y="514.23" font-size="12.5" fill="#9aa0a6" text-anchor="end" font-weight="normal">☿水星 221.0°</text>
+<circle cx="380.0" cy="396.0" r="5" fill="#4da6ff" stroke="#0b1020" stroke-width="1.5"/>
+<text x="380.00" y="418.00" font-size="10.5" fill="#7fa8e8" text-anchor="middle" font-weight="normal">地球 · 观测点</text>
+<text x="380.00" y="744.00" font-size="10.5" fill="#6b7a9e" text-anchor="middle" font-weight="normal">开普勒方程牛顿迭代求解 · 数据：JPL SSD 近似历表 (Standish &amp; Williams 1992)</text>
+</svg>

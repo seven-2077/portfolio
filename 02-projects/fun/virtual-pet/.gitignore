@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 宠物存档与损坏备份（个人状态，不入库）
+data/
+*.corrupt
+
+# 演示产物（可由 demo.py 随时再生）
+output/
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

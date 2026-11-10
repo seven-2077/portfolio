@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="zh-CN" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>涌现 Emergence</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans SC";
+        src: url("fonts/NotoSansSC-VF.ttf") format("truetype");
+        font-weight: 100 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Noto Serif SC";
+        src: url("fonts/NotoSerifSC-VF.ttf") format("truetype");
+        font-weight: 100 900;
+        font-style: normal;
+      }
+
+      :root {
+        --ground: #0a0e14;
+        --ink: #e9edf5;
+        --dim: #b3a999;
+        --accent: #ffb454;
+        --panel: #10151f;
+        --line: #2a3242;
+        --sans: "Noto Sans SC";
+        --serif: "Noto Serif SC";
+        --display: "Archivo Black";
+        --mono: "IBM Plex Mono";
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ground);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ground);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- 共享背景层 ---------- */
+      #bg {
+        z-index: 0;
+      }
+      .glow-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      .bg-glow {
+        width: 1560px;
+        height: 1560px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 180, 84, 0.15) 0%,
+          rgba(255, 180, 84, 0.05) 42%,
+          rgba(255, 180, 84, 0) 68%
+        );
+      }
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+            0deg,
+            rgba(233, 237, 245, 0.05) 0px,
+            rgba(233, 237, 245, 0.05) 1px,
+            transparent 1px,
+            transparent 96px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            rgba(233, 237, 245, 0.05) 0px,
+            rgba(233, 237, 245, 0.05) 1px,
+            transparent 1px,
+            transparent 96px
+          );
+        opacity: 0.55;
+      }
+      .bg-ghost {
+        position: absolute;
+        left: 58%;
+        top: 46%;
+        font-family: var(--sans);
+        font-weight: 900;
+        font-size: 560px;
+        line-height: 1;
+        color: var(--ink);
+        opacity: 0.05;
+        white-space: nowrap;
+        letter-spacing: 0.05em;
+      }
+      .bg-grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.6'/></svg>");
+      }
+
+      /* ---------- 通用排版件 ---------- */
+      .scene {
+        z-index: 1;
+        display: flex;
+        align-items: center;
+      }
+      .mono-tag {
+        font-family: var(--mono);
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+      .mono-foot {
+        font-family: var(--mono);
+        font-size: 19px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        color: var(--dim);
+        text-transform: uppercase;
+      }
+      .struct-line {
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent) 0%, rgba(255, 180, 84, 0) 100%);
+        transform-origin: left center;
+      }
+      .quote {
+        font-family: var(--serif);
+        font-weight: 550;
+        font-size: 96px;
+        line-height: 1.3;
+        color: var(--ink);
+        letter-spacing: 0.01em;
+      }
+      .quote .ln {
+        display: block;
+      }
+      .body-copy {
+        font-family: var(--sans);
+        font-weight: 350;
+        font-size: 33px;
+        line-height: 1.68;
+        color: var(--dim);
+      }
+      .panel {
+        background: var(--panel);
+        border: 2px solid var(--line);
+        padding: 16px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+      .panel img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .ghost-word {
+        position: absolute;
+        font-family: var(--display);
+        color: var(--ink);
+        opacity: 0.06;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+
+      /* ---------- S0 开场 ---------- */
+      #s0 {
+        padding-left: 190px;
+      }
+      .s0-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 34px;
+        max-width: 1300px;
+      }
+      #s0 .struct-line {
+        width: 420px;
+      }
+      #s0-title {
+        font-size: 112px;
+        line-height: 1.32;
+      }
+
+      /* ---------- S1 Koch ---------- */
+      #s1 {
+        padding: 0 150px;
+        gap: 90px;
+      }
+      #s1 .panel {
+        width: 600px;
+        height: 600px;
+        flex: none;
+      }
+      .copy-col {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 30px;
+      }
+      #s1 .ghost-word {
+        right: 60px;
+        top: 60px;
+        font-size: 240px;
+      }
+
+      /* ---------- S2 蕨类 ---------- */
+      #s2 {
+        padding: 0 150px;
+        gap: 100px;
+        justify-content: space-between;
+      }
+      #s2 .panel {
+        width: 520px;
+        height: 616px;
+        flex: none;
+      }
+      #s2 .ghost-word {
+        left: 70px;
+        bottom: 54px;
+        font-size: 150px;
+      }
+
+      /* ---------- S3 生命游戏 ---------- */
+      #s3 {
+        flex-direction: column;
+        justify-content: center;
+        gap: 56px;
+        padding: 0 140px;
+      }
+      .s3-head {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 26px;
+        width: 100%;
+      }
+      #s3 .struct-line {
+        width: 560px;
+      }
+      .s3-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 70px;
+        width: 100%;
+      }
+      .s3-strip-wrap {
+        flex: 1;
+        overflow: hidden;
+        border-top: 2px solid var(--line);
+        border-bottom: 2px solid var(--line);
+        background: var(--panel);
+        padding: 26px 0;
+      }
+      #s3-strip {
+        display: block;
+        width: 108%;
+        height: auto;
+        margin-left: -4%;
+      }
+      #s3 .body-copy {
+        width: 420px;
+        flex: none;
+        padding-bottom: 8px;
+      }
+
+      /* ---------- S4 反应扩散 ---------- */
+      #s4 {
+        flex-direction: column;
+        justify-content: center;
+        gap: 44px;
+        padding: 0 150px;
+      }
+      .s4-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .s4-head .copy-col {
+        gap: 22px;
+      }
+      .rd-row {
+        display: flex;
+        gap: 44px;
+        width: 100%;
+        justify-content: center;
+      }
+      .rd-card {
+        width: 440px;
+        flex: none;
+      }
+      .rd-card .panel {
+        width: 440px;
+        height: 458px;
+      }
+      .rd-cap {
+        font-family: var(--mono);
+        font-size: 20px;
+        letter-spacing: 0.18em;
+        color: var(--dim);
+        margin-top: 16px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      /* ---------- S5 双摆 ---------- */
+      #s5 {
+        padding: 0 140px;
+        gap: 70px;
+      }
+      .s5-left {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        flex: none;
+      }
+      #s5 .panel-a {
+        width: 500px;
+        height: 500px;
+      }
+      .s5-num {
+        font-family: var(--display);
+        font-size: 96px;
+        color: var(--accent);
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .s5-right {
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+        flex: 1;
+      }
+      #s5 .panel-b {
+        width: 100%;
+        height: 400px;
+      }
+      #s5 .ghost-word {
+        right: 90px;
+        bottom: 44px;
+        font-size: 130px;
+      }
+
+      /* ---------- S6 Mandelbrot ---------- */
+      #s6 {
+        padding: 0 150px;
+        gap: 84px;
+        justify-content: space-between;
+      }
+      #s6 .panel-main {
+        width: 900px;
+        height: 640px;
+        flex: none;
+      }
+      #s6 .panel-main img {
+        object-fit: cover;
+      }
+      .s6-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        width: 560px;
+      }
+      #s6 .struct-line {
+        width: 460px;
+      }
+      .s6-julia {
+        width: 240px;
+        height: 240px;
+        align-self: flex-end;
+      }
+      .s6-formula {
+        font-family: var(--mono);
+        font-size: 26px;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+      }
+
+      /* ---------- S7 收尾 ---------- */
+      #s7 {
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .mosaic {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 22px;
+        padding: 66px;
+        opacity: 1;
+      }
+      .mosaic .tile {
+        background: var(--panel);
+        border: 2px solid var(--line);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
+      .mosaic .tile img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      .s7-final {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 26px;
+        text-align: center;
+      }
+      #s7-en {
+        font-family: var(--display);
+        font-size: 128px;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      #s7-zh {
+        font-family: var(--sans);
+        font-weight: 900;
+        font-size: 76px;
+        letter-spacing: 0.34em;
+        margin-left: 0.34em;
+        color: var(--ink);
+        line-height: 1;
+      }
+      #s7-slogan {
+        font-family: var(--serif);
+        font-weight: 550;
+        font-size: 44px;
+        color: var(--accent);
+        letter-spacing: 0.06em;
+      }
+      #s7 .struct-line {
+        width: 560px;
+        background: linear-gradient(90deg, rgba(255, 180, 84, 0) 0%, var(--accent) 50%, rgba(255, 180, 84, 0) 100%);
+        transform-origin: center;
+      }
+      #s7-foot {
+        margin-top: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="60"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- 共享背景 0-60s -->
+      <section id="bg" class="clip" data-start="0" data-duration="60" data-track-index="0">
+        <div class="bg-grid" id="bg-grid"></div>
+        <div class="glow-wrap"><div class="bg-glow" id="bg-glow"></div></div>
+        <div class="bg-ghost" id="bg-ghost" data-layout-allow-overflow data-layout-allow-occlusion>涌现</div>
+        <div class="bg-grain"></div>
+      </section>
+
+      <!-- S0 开场 0-6s -->
+      <section id="s0" class="clip scene" data-start="0" data-duration="6" data-track-index="1">
+        <div class="s0-wrap">
+          <div class="mono-tag" data-layout-ignore id="s0-tag">Emergence · 涌现</div>
+          <div class="struct-line" id="s0-line"></div>
+          <h1 class="quote" id="s0-title">
+            <span class="ln" id="s0-ta">一条规则，</span>
+            <span class="ln" id="s0-tb">能走多远？</span>
+          </h1>
+          <div class="mono-foot" data-layout-ignore id="s0-foot">2026-11-05 · six rules · one film</div>
+        </div>
+      </section>
+
+      <!-- S1 Koch 6-14s -->
+      <section id="s1" class="clip scene" data-start="6" data-duration="8" data-track-index="1">
+        <div class="ghost-word">REPEAT</div>
+        <div class="panel" id="s1-panel">
+          <img src="assets/koch.svg" alt="" id="s1-img" />
+        </div>
+        <div class="copy-col">
+          <div class="mono-tag" data-layout-ignore id="s1-tag">rule 01 / repeat</div>
+          <div class="struct-line" id="s1-line"></div>
+          <h2 class="quote" id="s1-quote">
+            <span class="ln">一条折线，</span>
+            <span class="ln">画到天涯</span>
+          </h2>
+          <p class="body-copy" id="s1-body">同一段折线不断自我复制 —— 无限周长，围出有限面积。</p>
+        </div>
+      </section>
+
+      <!-- S2 蕨类 14-22s -->
+      <section id="s2" class="clip scene" data-start="14" data-duration="8" data-track-index="1">
+        <div class="copy-col">
+          <div class="mono-tag" data-layout-ignore id="s2-tag">rule 02 / grow</div>
+          <div class="struct-line" id="s2-line"></div>
+          <h2 class="quote" id="s2-quote">
+            <span class="ln">同样的语法，</span>
+            <span class="ln">长出生命</span>
+          </h2>
+          <p class="body-copy" id="s2-body">一条递归规则写到底 —— 蕨叶与参天大树，共享同一份说明书。</p>
+        </div>
+        <div class="panel" id="s2-panel">
+          <img src="assets/fern.svg" alt="" id="s2-img" />
+        </div>
+        <div class="ghost-word">L-SYSTEM</div>
+      </section>
+
+      <!-- S3 生命游戏 22-30s -->
+      <section id="s3" class="clip scene" data-start="22" data-duration="8" data-track-index="1">
+        <div class="s3-head">
+          <div class="mono-tag" data-layout-ignore id="s3-tag">rule 03 / neighbors · conway b3/s23</div>
+          <div class="struct-line" id="s3-line"></div>
+          <h2 class="quote" id="s3-quote">
+            <span class="ln">四个邻居，一个宇宙</span>
+          </h2>
+        </div>
+        <div class="s3-row">
+          <div class="s3-strip-wrap" id="s3-strip-wrap">
+            <img src="assets/glider.svg" alt="" id="s3-strip" data-layout-allow-overflow />
+          </div>
+          <p class="body-copy" id="s3-body">生、死、复生 —— 没有玩家，只有规则在自己奔跑。</p>
+        </div>
+      </section>
+
+      <!-- S4 反应扩散 30-38s -->
+      <section id="s4" class="clip scene" data-start="30" data-duration="8" data-track-index="1">
+        <div class="s4-head">
+          <div class="copy-col">
+            <div class="mono-tag" data-layout-ignore id="s4-tag">rule 04 / diffuse</div>
+            <div class="struct-line" id="s4-line"></div>
+            <h2 class="quote" id="s4-quote">
+              <span class="ln">两种物质相遇，长出豹纹</span>
+            </h2>
+          </div>
+          <p class="body-copy" id="s4-body" style="width: 430px; text-align: right">
+            扩散与反应互相拉扯 —— 斑点、条纹、蠕虫，全是同一组方程。
+          </p>
+        </div>
+        <div class="rd-row">
+          <div class="rd-card" id="s4-c1">
+            <div class="panel"><img src="assets/rd_spots.svg" alt="" /></div>
+            <div class="rd-cap" data-layout-ignore>spots</div>
+          </div>
+          <div class="rd-card" id="s4-c2">
+            <div class="panel"><img src="assets/rd_stripes.svg" alt="" /></div>
+            <div class="rd-cap" data-layout-ignore>stripes</div>
+          </div>
+          <div class="rd-card" id="s4-c3">
+            <div class="panel"><img src="assets/rd_worms.svg" alt="" /></div>
+            <div class="rd-cap" data-layout-ignore>worms</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S5 双摆 38-46s -->
+      <section id="s5" class="clip scene" data-start="38" data-duration="8" data-track-index="1">
+        <div class="s5-left">
+          <div class="panel panel-a" id="s5-panel-a">
+            <img src="assets/pendulum.svg" alt="" id="s5-img-a" />
+          </div>
+          <div class="s5-num" id="s5-num">0.0001</div>
+        </div>
+        <div class="s5-right">
+          <div class="mono-tag" data-layout-ignore id="s5-tag">rule 05 / chaos · Δθ = 10⁻⁴ rad</div>
+          <div class="struct-line" id="s5-line"></div>
+          <h2 class="quote" id="s5-quote">
+            <span class="ln">差一点点，</span>
+            <span class="ln">命运分道扬镳</span>
+          </h2>
+          <div class="panel panel-b" id="s5-panel-b">
+            <img src="assets/divergence.svg" alt="" id="s5-img-b" />
+          </div>
+          <p class="body-copy" id="s5-body">万分之一弧度的偏差，两秒后彻底走散。</p>
+        </div>
+        <div class="ghost-word">CHAOS</div>
+      </section>
+
+      <!-- S6 Mandelbrot 46-54s -->
+      <section id="s6" class="clip scene" data-start="46" data-duration="8" data-track-index="1">
+        <div class="s6-copy">
+          <div class="mono-tag" data-layout-ignore id="s6-tag">rule 06 / iterate</div>
+          <div class="struct-line" id="s6-line"></div>
+          <h2 class="quote" id="s6-quote">
+            <span class="ln">无穷细节，</span>
+            <span class="ln">藏在一次迭代</span>
+          </h2>
+          <div class="s6-formula" id="s6-formula" data-layout-ignore>z ← z² + c</div>
+          <p class="body-copy" id="s6-body">一条再简单不过的迭代 —— 放大多少倍，都有新的海岸线在等你。</p>
+        </div>
+        <div class="panel panel-main" id="s6-panel">
+          <img src="assets/mandelbrot.bmp" alt="" id="s6-img" data-layout-allow-overflow />
+        </div>
+        <div class="panel s6-julia" id="s6-julia">
+          <img src="assets/julia.bmp" alt="" />
+        </div>
+      </section>
+
+      <!-- S7 收尾 54-60s -->
+      <section id="s7" class="clip scene" data-start="54" data-duration="6" data-track-index="1">
+        <div class="mosaic" id="s7-mosaic">
+          <div class="tile"><img src="assets/koch.svg" alt="" /></div>
+          <div class="tile"><img src="assets/fern.svg" alt="" /></div>
+          <div class="tile"><img src="assets/mandelbrot.bmp" alt="" /></div>
+          <div class="tile"><img src="assets/julia.bmp" alt="" /></div>
+          <div class="tile"><img src="assets/rd_spots.svg" alt="" /></div>
+          <div class="tile"><img src="assets/rd_stripes.svg" alt="" /></div>
+          <div class="tile"><img src="assets/rd_worms.svg" alt="" /></div>
+          <div class="tile"><img src="assets/glider.svg" alt="" /></div>
+          <div class="tile"><img src="assets/pendulum.svg" alt="" /></div>
+          <div class="tile"><img src="assets/divergence.svg" alt="" /></div>
+          <div class="tile"><img src="assets/raytrace.bmp" alt="" /></div>
+          <div class="tile"><img src="assets/zodiac.svg" alt="" /></div>
+        </div>
+        <div class="s7-final" id="s7-final" style="opacity: 0">
+          <div class="mono-tag" data-layout-ignore id="s7-tag" style="opacity: 0">a film by seven</div>
+          <div id="s7-en" style="opacity: 0">EMERGENCE</div>
+          <div id="s7-zh" style="opacity: 0">涌现</div>
+          <div class="struct-line" id="s7-line"></div>
+          <div id="s7-slogan" style="opacity: 0">简单规则，复杂之美</div>
+          <div class="mono-foot" data-layout-ignore id="s7-foot" style="opacity: 0">
+            fourteen projects · one day · 2026-11-05
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        /* ===== 背景 ambient（有限次数，全片 60s） ===== */
+        tl.fromTo(
+          "#bg-glow",
+          { scale: 1 },
+          { scale: 1.07, duration: 3, ease: "sine.inOut", yoyo: true, repeat: 9 },
+          0
+        );
+        tl.fromTo(
+          "#bg-ghost",
+          { x: 60 },
+          { x: -160, duration: 60, ease: "none" },
+          0
+        );
+        tl.fromTo(
+          "#bg-grid",
+          { opacity: 0.4 },
+          { opacity: 0.75, duration: 4, ease: "sine.inOut", yoyo: true, repeat: 14 },
+          0
+        );
+
+        /* ===== S0 开场 0-6 ===== */
+        tl.fromTo("#s0-line", { scaleX: 0.14 }, { scaleX: 1, duration: 0.9, ease: "power3.inOut" }, 0.2);
+        tl.fromTo("#s0-ta", { opacity: 0.4, y: 40 }, { opacity: 1, y: 0, duration: 1.0, ease: "power4.out" }, 0);
+        tl.fromTo("#s0-tb", { opacity: 0, y: 72 }, { opacity: 1, y: 0, duration: 0.8, ease: "power4.out" }, 1.05);
+        tl.fromTo("#s0-foot", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.6);
+        tl.to("#s0 .s0-wrap > *", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.04 }, 5.0);
+
+        /* ===== S1 Koch 6-14 ===== */
+        tl.fromTo(
+          "#s1-img",
+          { clipPath: "circle(0% at 50% 50%)" },
+          { clipPath: "circle(78% at 50% 50%)", duration: 1.7, ease: "power2.inOut" },
+          6.1
+        );
+        tl.fromTo("#s1-panel", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.0, ease: "power3.out" }, 6.1);
+        tl.fromTo("#s1-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 6.5);
+        tl.fromTo("#s1-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 6.65);
+        tl.fromTo("#s1-quote .ln", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out", stagger: 0.16 }, 6.85);
+        tl.fromTo("#s1-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 7.4);
+        tl.fromTo("#s1 .ghost-word", { opacity: 0 }, { opacity: 0.06, duration: 1.2, ease: "power1.out" }, 7.0);
+        tl.to("#s1 .copy-col > *, #s1-panel, #s1 .ghost-word", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 13.1);
+
+        /* ===== S2 蕨类 14-22 ===== */
+        tl.fromTo(
+          "#s2-img",
+          { clipPath: "inset(100% 0% 0% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", duration: 1.7, ease: "power3.inOut" },
+          14.15
+        );
+        tl.fromTo("#s2-panel", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" }, 14.0);
+        tl.fromTo("#s2-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 14.5);
+        tl.fromTo("#s2-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 14.65);
+        tl.fromTo("#s2-quote .ln", { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out", stagger: 0.16 }, 14.85);
+        tl.fromTo("#s2-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 15.4);
+        tl.fromTo("#s2 .ghost-word", { opacity: 0 }, { opacity: 0.06, duration: 1.2, ease: "power1.out" }, 15.2);
+        tl.to("#s2 .copy-col > *, #s2-panel, #s2 .ghost-word", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 21.1);
+
+        /* ===== S3 生命游戏 22-30 ===== */
+        tl.fromTo("#s3-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 22.15);
+        tl.fromTo("#s3-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 22.3);
+        tl.fromTo("#s3-quote .ln", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out" }, 22.5);
+        tl.fromTo("#s3-strip-wrap", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 22.7);
+        tl.fromTo("#s3-strip", { x: -70 }, { x: 70, duration: 7.3, ease: "none" }, 22.7);
+        tl.fromTo("#s3-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 23.3);
+        tl.to("#s3 .s3-head > *, #s3-strip-wrap, #s3-body", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 29.1);
+
+        /* ===== S4 反应扩散 30-38 ===== */
+        tl.fromTo("#s4-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 30.15);
+        tl.fromTo("#s4-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 30.3);
+        tl.fromTo("#s4-quote .ln", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out" }, 30.5);
+        tl.fromTo("#s4-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 31.0);
+        tl.fromTo(
+          ".rd-card",
+          { opacity: 0, y: 64, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out", stagger: 0.22 },
+          30.75
+        );
+        tl.to("#s4 .copy-col > *, #s4-body, .rd-card", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 37.1);
+
+        /* ===== S5 双摆 38-46 ===== */
+        tl.fromTo("#s5-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 38.15);
+        tl.fromTo("#s5-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 38.3);
+        tl.fromTo("#s5-quote .ln", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out", stagger: 0.16 }, 38.5);
+        tl.fromTo(
+          "#s5-panel-a",
+          { opacity: 0, clipPath: "inset(0% 100% 0% 0%)" },
+          { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, ease: "power3.inOut" },
+          38.6
+        );
+        tl.fromTo(
+          "#s5-panel-b",
+          { opacity: 0, clipPath: "inset(0% 100% 0% 0%)" },
+          { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, ease: "power3.inOut" },
+          39.0
+        );
+        tl.fromTo("#s5-num", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 40.2);
+        tl.fromTo("#s5-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 40.8);
+        tl.fromTo("#s5 .ghost-word", { opacity: 0 }, { opacity: 0.06, duration: 1.2, ease: "power1.out" }, 40.5);
+        tl.to("#s5 .s5-left > *, #s5 .s5-right > *, #s5 .ghost-word", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 45.4);
+
+        /* ===== S6 Mandelbrot 46-54 ===== */
+        tl.fromTo("#s6-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 46.15);
+        tl.fromTo("#s6-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 46.3);
+        tl.fromTo("#s6-quote .ln", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out", stagger: 0.16 }, 46.5);
+        tl.fromTo("#s6-formula", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 47.2);
+        tl.fromTo("#s6-body", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 47.5);
+        tl.fromTo("#s6-panel", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 1.0, ease: "power3.out" }, 46.4);
+        tl.fromTo("#s6-img", { scale: 1 }, { scale: 1.16, duration: 7.4, ease: "none" }, 46.6);
+        tl.fromTo("#s6-julia", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, 48.0);
+        tl.to("#s6 .s6-copy > *, #s6-panel, #s6-julia", { opacity: 0, duration: 0.7, ease: "power2.in", stagger: 0.03 }, 53.1);
+
+        /* ===== S7 收尾 54-60 ===== */
+        tl.fromTo(
+          ".mosaic .tile",
+          { opacity: 0, scale: 0.55 },
+          { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)", stagger: 0.05 },
+          54.05
+        );
+        tl.to(
+          ".mosaic .tile",
+          { opacity: 0, scale: 0.92, duration: 0.5, ease: "power2.in", stagger: 0.03 },
+          55.55
+        );
+        tl.to("#s7-final", { opacity: 1, duration: 0.01 }, 56.35);
+        tl.fromTo("#s7-tag", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 56.4);
+        tl.fromTo("#s7-en", { opacity: 0, y: 56 }, { opacity: 1, y: 0, duration: 0.75, ease: "power4.out" }, 56.55);
+        tl.fromTo("#s7-zh", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.7, ease: "power4.out" }, 56.85);
+        tl.fromTo("#s7-line", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.inOut" }, 57.1);
+        tl.fromTo("#s7-slogan", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 57.5);
+        tl.fromTo("#s7-foot", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 57.8);
+
+        window.__timelines["main"] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>

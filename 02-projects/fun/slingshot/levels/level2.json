@@ -1,0 +1,18 @@
+{
+  "name": "堡垒",
+  "world": { "width": 96, "height": 32, "gravity": 30 },
+  "ground_y": 28,
+  "sling": [10, 24],
+  "ammo": 4,
+  "blocks": [
+    { "x": 54, "y": 26, "w": 1, "h": 4, "material": "stone" },
+    { "x": 70, "y": 26, "w": 1, "h": 4, "material": "stone" },
+    { "x": 62, "y": 23.5, "w": 18, "h": 1, "material": "stone" },
+    { "x": 57, "y": 26.5, "w": 1, "h": 3, "material": "glass" },
+    { "x": 59.5, "y": 26.5, "w": 1, "h": 3, "material": "glass" },
+    { "x": 64, "y": 26, "w": 2, "h": 4, "material": "wood" },
+    { "x": 62, "y": 22.5, "w": 10, "h": 1, "material": "wood" },
+    { "x": 62, "y": 21, "w": 1, "h": 2, "material": "glass" },
+    { "x": 62, "y": 19.5, "w": 1, "h": 1, "material": "stone" }
+  ]
+}

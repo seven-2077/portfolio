@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="zh-CN" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1280" />
+    <title>足迹里的思政课 · 甘肃足迹</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <style>
+      /* ===== 字体：系统字体本地声明（零外网依赖，DESIGN.md） ===== */
+      @font-face { font-family: "SimHei"; src: local("SimHei"); }
+      @font-face { font-family: "Microsoft YaHei"; src: local("Microsoft YaHei"), local("MicrosoftYaHei"); }
+
+      /* ===== 设计令牌：全片唯一取色来源（DESIGN.md 硬红线） =====
+         v2 新增 --news-red / --news-blue 仅用于新闻角标细条（TIMELINE_V2 第五节授权） */
+      :root {
+        --bg: #0b0f12;
+        --ink: #f4f1ea;
+        --ink-dim: #d8d2c6;
+        --gold: #d9a441;
+        --gold-bright: #f2c14e;
+        --gold-10: rgba(217, 164, 65, 0.1);
+        --gold-04: rgba(217, 164, 65, 0.04);
+        --gold-line: rgba(217, 164, 65, 0.35);
+        --veil: rgba(11, 15, 18, 0.55);
+        --caption-veil: rgba(11, 15, 18, 0.88);
+        --grid-line: rgba(217, 164, 65, 0.05);
+        --news-red: #c8102e;
+        --news-blue: #14477d;
+        --caption-size: 42px;
+        --caption-bottom: 6%;
+        --caption-line-height: 1.4;
+        --font-title: "Microsoft YaHei", "SimHei", sans-serif;
+        --font-body: "SimHei", "Microsoft YaHei", sans-serif;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1280px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+      .clip { position: absolute; inset: 0; }
+
+      /* ===== v3 字幕带：画布 1920×1280，上 1080 是完整视频，下 200px 纯黑字幕带 =====
+         除字幕容器外，#root 的所有直接子元素（背景/视频层/段落/角标/进度/覆层等）
+         一律约束到上方 1080px，绝不进入黑带；层内子元素不受影响 */
+      #root > :not(.caption-cue) { inset: 0 0 200px 0; }
+
+      /* 轨道 0：共享背景（6 段共用同一张底图） */
+      #bg { z-index: 0; }
+      .bg-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, var(--gold-10) 0%, var(--gold-04) 42%, transparent 68%); }
+
+      /* 轨道 1：段落与镜头 */
+      .seg { z-index: 1; }
+      .shot { overflow: hidden; }
+      .shot-media { position: absolute; inset: 0; overflow: hidden; }
+      .shot-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .chart-img { object-fit: contain; object-position: center 40%; }
+
+      /* 视频层：HyperFrames 要求 <video data-start> 不得嵌套在任何带 data-start 的祖先内，
+         所以视频直挂根下、层容器本身不计时；镜头用不透明 div 叠在视频上做交叉淡化 */
+      .video-layer { position: absolute; inset: 0; z-index: 1; }
+      .shot-video { display: block; width: 100%; height: 100%; object-fit: cover; }
+      /* 竖屏素材（八步沙 p1 让位拍）：contain + 左右深底柱，新闻竖屏处理 */
+      .shot-video--portrait { object-fit: contain; background: var(--bg); }
+
+      /* ===== 覆层与字卡（颜色只取 :root 令牌） ===== */
+      .plate { position: absolute; left: 0; right: 0; display: flex; justify-content: center; }
+      .plate--title { top: 26%; }
+      .plate--mid { top: 30%; }
+      .plate--end { top: 30%; }
+      .plate--src { top: auto; bottom: 30%; }
+
+      .title-block { display: flex; flex-direction: column; align-items: center; background: var(--bg); padding: 34px 70px; border-radius: 6px; }
+      .film-title { font-family: var(--font-title); font-size: 96px; font-weight: 700; color: var(--ink); letter-spacing: 0.12em; }
+
+      /* ===== S5-4 片尾演职员卡：装饰层（金尘粒子 + 一次性流光，全走 GSAP 时间轴，seek 安全） ===== */
+      .endcard-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+      .sweep {
+        position: absolute; top: -20%; bottom: -20%; left: 0; width: 24%;
+        background: linear-gradient(102deg,
+          rgba(217, 164, 65, 0) 0%,
+          rgba(217, 164, 65, 0.14) 42%,
+          rgba(255, 233, 187, 0.30) 50%,
+          rgba(217, 164, 65, 0.14) 58%,
+          rgba(217, 164, 65, 0) 100%);
+        mix-blend-mode: screen;
+        transform: translateX(-170%);
+        opacity: 0;
+      }
+      .mote {
+        position: absolute; border-radius: 50%; opacity: 0;
+        background: radial-gradient(circle, rgba(255, 226, 168, 0.95) 0%, rgba(217, 164, 65, 0.35) 55%, rgba(217, 164, 65, 0) 78%);
+      }
+      .gold-rule { width: 460px; height: 5px; background: var(--gold); margin-top: 28px; transform-origin: center center; }
+      .source { font-family: var(--font-body); font-size: 34px; color: var(--ink); background: var(--bg); padding: 12px 34px; border-radius: 2px; }
+
+      /* 新闻角标条（左上角，替代 v1 居中日期大卡）：红蓝细条 + 日期 */
+      .plate--bug { top: 0; left: 0; right: auto; justify-content: flex-start; padding: 54px 0 0 92px; }
+      .news-bug { display: flex; flex-direction: column; background: var(--bg); border-radius: 2px; overflow: hidden; }
+      .bug-strip { display: flex; height: 8px; }
+      .bug-strip .red { width: 132px; background: var(--news-red); }
+      .bug-strip .blue { width: 64px; background: var(--news-blue); }
+      .bug-text { font-family: var(--font-title); font-size: 34px; color: var(--ink); padding: 14px 26px; letter-spacing: 0.08em; }
+
+      /* 下三分之一引语条（左金条 + 引文 + 小字出处，不居中压画） */
+      .plate--qbar { top: auto; bottom: 15%; right: auto; justify-content: flex-start; padding-left: 120px; }
+      .quote-bar { display: flex; align-items: stretch; background: rgba(11, 15, 18, 0.9); border-radius: 2px; }
+      .qbar-gilt { width: 8px; background: var(--gold); }
+      .qbar-body { padding: 22px 44px 24px; text-align: left; }
+      .quote-text { font-family: var(--font-title); font-size: 68px; color: var(--gold); line-height: 1.2; letter-spacing: 0.04em; }
+      .quote-src { font-family: var(--font-body); font-size: 34px; color: var(--ink-dim); margin-top: 12px; letter-spacing: 0.06em; }
+
+      /* 专用图文帧（数字信息板，静读 + count-up） */
+      .info-frame { position: absolute; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+      .info-board { width: 1240px; border: 3px solid var(--gold); background: rgba(11, 15, 18, 0.96); padding: 54px 72px 60px; }
+      .info-head { font-family: var(--font-title); font-size: 36px; color: var(--ink-dim); letter-spacing: 0.3em; padding-bottom: 28px; border-bottom: 1px solid var(--gold-line); margin-bottom: 34px; }
+      .info-row { display: flex; justify-content: space-between; align-items: baseline; padding: 24px 0; }
+      .info-label { font-family: var(--font-body); font-size: 38px; color: var(--ink); letter-spacing: 0.1em; }
+      .info-val { font-family: var(--font-title); font-size: 84px; font-weight: 700; color: var(--gold); line-height: 1.1; letter-spacing: 0.03em; }
+      .info-row--solo { justify-content: center; padding-top: 10px; }
+      .info-val--solo { font-size: 118px; }
+
+      .veil { position: absolute; inset: 0; background: var(--veil); }
+      .fp { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); }
+      .fp-1 { left: 26%; top: 74%; }
+      .fp-2 { left: 38%; top: 66%; }
+      .fp-3 { left: 50%; top: 59%; }
+      .fp-4 { left: 62%; top: 52%; }
+
+      /* ===== 轨道 2：字幕层（v2 句级 cue，新闻下三分之一样式）
+         caption lint：nowrap 配 max-width、不用 position:relative、不用 br ===== */
+      /* 容器只占底部字幕带（不全屏）：全屏容器会拦掉 elementFromPoint 探测，
+         使带 clipPath 的镜头下文本被审计误判为 clipped-away（line_unread 假警） */
+      .caption-cue { position: absolute; z-index: 2; top: auto; left: 0; right: 0; bottom: 0; height: 200px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 58px; }
+      .caption-pill {
+        max-width: 1600px;
+        padding: 12px 34px;
+        border-radius: 2px;
+        background: var(--caption-veil);
+        border: 1px solid var(--gold-line);
+        border-left: 6px solid var(--gold);
+      }
+      .caption-text {
+        display: block;
+        white-space: nowrap;
+        max-width: 1600px;
+        font-family: var(--font-body);
+        font-size: var(--caption-size);
+        line-height: var(--caption-line-height);
+        color: var(--ink);
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" class="composition" data-composition-id="main" data-start="0" data-duration="320.06" data-width="1920" data-height="1280" data-take-id="">
+      <!-- 轨道 0：共享背景（时长与根对齐 312.06s） -->
+      <section id="bg" class="clip bg" data-start="0" data-duration="320.06"><div class="bg-glow" id="bg-glow"></div></section>
+
+      <!-- 轨道 1：真视频层（lint：video 不得嵌套在带 data-start 的祖先内，故直挂根下、层不计时） -->
+      <div class="video-layer">
+        <video id="vid-s1-3" class="shot-video" src="assets/video/xinhua_2025_kuxianshui.mp4" muted playsinline data-start="57.18" data-duration="6.54"></video>
+
+        <video id="vid-s2-1a" class="shot-video" src="assets/video/xinhua_2024_dingxi_ducao.mp4" muted playsinline data-playback-rate="0.8" data-start="63.72" data-duration="14.98"></video>
+        <video id="vid-s2-1c" class="shot-video" src="assets/video/xinhua_2024_dingxi_ducao.mp4" muted playsinline data-playback-rate="0.8" data-media-start="12" data-start="91.64" data-duration="11.68"></video>
+        <video id="vid-s2-2" class="shot-video" src="assets/video/xinhua_2025_taohe_jieshui.mp4" muted playsinline data-start="102.82" data-duration="15.92"></video>
+        <video id="vid-s2-4a" class="shot-video" src="assets/video/xinhua_2024_dingxi_xincun.mp4" muted playsinline data-media-start="12" data-start="128.46" data-duration="3.05"></video>
+        <!-- 让位拍 1：xincun 0–12s 种植户访谈原声（嘴型对位，131.01–143.01） -->
+        <video id="vid-beat1" class="shot-video" src="assets/video/xinhua_2024_dingxi_xincun.mp4" muted playsinline data-start="131.01" data-duration="12.61"></video>
+
+        <video id="vid-s3-1" class="shot-video" src="assets/video/cctv_2019_babusha_1981liu.mp4" muted playsinline data-playback-rate="0.84" data-start="161.98" data-duration="26.18"></video>
+        <video id="vid-s3-3" class="shot-video" src="assets/video/cctv_2019_babusha_jixiehua.mp4" muted playsinline data-start="192.96" data-duration="4.88"></video>
+        <!-- 让位拍 2：八步沙 p1 竖屏 4.92–19.92s 现场讲话原声（204.37–219.37） -->
+        <video id="vid-beat2" class="shot-video shot-video--portrait" src="assets/video/xinhua_2023_babusha_p1_nosub.mp4" muted playsinline data-media-start="4.92" data-start="204.37" data-duration="15.0"></video>
+        <video id="vid-s3-5" class="shot-video" src="assets/video/chinanews_2019_dunhuang_kaocha.mp4" muted playsinline data-start="219.37" data-duration="9.71"></video>
+        <video id="vid-s3-6" class="shot-video" src="assets/video/dha_2023_285ku.mp4" muted playsinline data-start="228.58" data-duration="11.12"></video>
+
+        <video id="vid-s5-2b" class="shot-video" src="assets/video/xinhua_2023_babusha_suosuo.mp4" muted playsinline data-start="289.06" data-duration="8.0"></video>
+        <video id="vid-s5-2c" class="shot-video" src="assets/video/xinhua_2025_taohe_jieshui_pengshui.mp4" muted playsinline data-start="296.76" data-duration="6.12"></video>
+      </div>
+
+      <!-- ============ S0 开场 · 0–23.2s ============ -->
+      <section id="seg-s0" class="clip seg" data-start="0" data-duration="23.2" data-track-index="1">
+        <div class="clip shot" id="shot-s0-1" data-start="0" data-duration="8.82">
+          <img id="img-s0-1" class="shot-img" data-layout-allow-overflow src="assets/ai/ai_ch1_yuantu.jpg" alt="黄土山梁晨曦意象">
+          <div class="plate plate--title"><div class="title-block" id="s0-1-title"><div class="film-title">足迹里的思政课</div><div class="gold-rule" id="s0-1-rule"></div></div></div>
+        </div>
+        <div class="clip shot" id="shot-s0-2" data-start="8.32" data-duration="14.88">
+          <img id="img-s0-2" class="shot-img" data-layout-allow-overflow src="assets/images/2021_longzhong_landscape.jpg" alt="陇中旱塬村落全景">
+          <div class="fp fp-1" id="fp-1"></div><div class="fp fp-2" id="fp-2"></div><div class="fp fp-3" id="fp-3"></div><div class="fp fp-4" id="fp-4"></div>
+        </div>
+      </section>
+
+      <!-- ============ S1 引入 · 23.7–63.22s ============ -->
+      <section id="seg-s1" class="clip seg" data-start="23.7" data-duration="39.52" data-track-index="1">
+        <div class="clip shot" id="shot-s1-1" data-start="23.7" data-duration="22.18">
+          <img id="img-s1-1" class="shot-img" data-layout-allow-overflow src="assets/images/2013_kaocha_f23.jpg" alt="2013 年 2 月元古堆村考察">
+          <div class="plate plate--bug"><div class="news-bug" id="s1-1-bug"><span class="bug-strip"><span class="red"></span><span class="blue"></span></span><span class="bug-text">2013年2月3日 · 渭源县元古堆村</span></div></div>
+        </div>
+        <div class="clip shot" id="shot-s1-2" data-start="45.38" data-duration="12.3">
+          <div class="shot-media" id="media-s1-2"><img id="img-s1-2" class="shot-img" data-layout-allow-overflow src="assets/images/2013_nianhuo_list.jpg" alt="元古堆村年货清单：人均纯收入 1487.14 元"></div>
+        </div>
+        <div class="clip shot" id="shot-s1-3" data-start="57.18" data-duration="6.54"></div>
+      </section>
+
+      <!-- ============ S2 攻坚 · 63.72–161.48s（含让位拍 131.01–143.01） ============ -->
+      <section id="seg-s2" class="clip seg" data-start="63.72" data-duration="97.76" data-track-index="1">
+        <div class="clip shot" id="shot-s2-1" data-start="63.72" data-duration="14.98"></div>
+
+        <!-- s2-1b 专用数据板帧：三数字依次 count-up 对应句 4/5/6 -->
+        <div class="clip shot" id="shot-s2-1b" data-start="78.2" data-duration="13.94">
+          <div class="info-frame" id="s2-1b-frame" data-hold>
+            <div class="info-board">
+              <div class="info-head">引洮工程 · 关键数据</div>
+              <div class="info-row" id="s2-1b-r1"><span class="info-label">总干渠长度</span><span class="info-val" id="n-s2-1">0 km</span></div>
+              <div class="info-row" id="s2-1b-r2"><span class="info-label">隧洞占比</span><span class="info-val" id="n-s2-2">0%</span></div>
+              <div class="info-row" id="s2-1b-r3"><span class="info-label">冷冻法日掘进</span><span class="info-val" id="n-s2-3">0 cm/天</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="clip shot" id="shot-s2-1c" data-start="91.64" data-duration="11.68"></div>
+
+        <div class="clip shot" id="shot-s2-2" data-start="102.82" data-duration="15.92">
+          <div class="plate plate--qbar"><div class="quote-bar" id="s2-2-quote"><span class="qbar-gilt"></span><span class="qbar-body"><span class="quote-text">“这水真甜”</span><span class="quote-src">—— 引洮一期通水 · 2014 年冬</span></span></div></div>
+        </div>
+
+        <div class="clip shot" id="shot-s2-3" data-start="118.24" data-duration="10.72" data-hold>
+          <div class="shot-media" id="media-s2-3"><img id="img-s2-3" class="shot-img chart-img" data-layout-allow-overflow src="assets/charts/yintao_donut.png" alt="引洮二期覆盖：五市 13 县 / 600 多万人 / 约四分之一"></div>
+        </div>
+
+        <div class="clip shot" id="shot-s2-4a" data-start="128.46" data-duration="3.05"></div>
+        <div class="clip shot" id="shot-beat1" data-start="131.01" data-duration="12.61"></div>
+
+        <div class="clip shot" id="shot-s2-4b" data-start="143.12" data-duration="18.36" data-hold>
+          <div class="shot-media" id="media-s2-4b"><img id="img-s2-4b" class="shot-img chart-img" data-layout-allow-overflow src="assets/charts/income_main.png" alt="脱贫地区农村居民人均可支配收入 9385→13015"></div>
+        </div>
+      </section>
+
+      <!-- ============ S3 生态文明 · 161.98–239.7s（含让位拍 204.37–219.37） ============ -->
+      <section id="seg-s3" class="clip seg" data-start="161.98" data-duration="77.72" data-track-index="1">
+        <div class="clip shot" id="shot-s3-1" data-start="161.98" data-duration="26.18"></div>
+
+        <!-- s3-2 专用图文帧：21.7 万亩 count-up（原悬浮卡升级为独立画面帧） -->
+        <div class="clip shot" id="shot-s3-2" data-start="188.8" data-duration="4.66">
+          <div class="info-frame" id="s3-2-frame" data-hold>
+            <div class="info-board">
+              <div class="info-head">古浪八步沙林场 · 累计治沙造林</div>
+              <div class="info-row info-row--solo"><span class="info-val info-val--solo" id="n-s3-2">0.0 万亩</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="clip shot" id="shot-s3-3" data-start="192.96" data-duration="4.88"></div>
+
+        <div class="clip shot" id="shot-s3-4" data-start="197.34" data-duration="7.03">
+          <img id="img-s3-4" class="shot-img" data-layout-allow-overflow src="assets/images/2019_babusha_sandaizhisharen.jpg" alt="八步沙草方格与三代治沙人">
+          <div class="plate plate--qbar"><div class="quote-bar" id="s3-4-quote"><span class="qbar-gilt"></span><span class="qbar-body"><span class="quote-text">“新时代的愚公”</span><span class="quote-src">—— 2019 年 8 月 21 日 · 古浪八步沙</span></span></div></div>
+        </div>
+
+        <div class="clip shot" id="shot-beat2" data-start="204.37" data-duration="15.0"></div>
+        <div class="clip shot" id="shot-s3-5" data-start="219.37" data-duration="9.71"></div>
+        <div class="clip shot" id="shot-s3-6" data-start="228.58" data-duration="11.12"></div>
+      </section>
+
+      <!-- ============ S4 升华 · 240.2–265.8s ============ -->
+      <section id="seg-s4" class="clip seg" data-start="240.2" data-duration="25.6" data-track-index="1">
+        <div class="clip shot" id="shot-s4-1" data-start="240.2" data-duration="14.16">
+          <img id="img-s4-1" class="shot-img" data-layout-allow-overflow src="assets/images/2021_liufu_drama.jpg" alt="老引洮刘富表演自编陇曲《圆洮梦》">
+        </div>
+        <div class="clip shot" id="shot-s4-2" data-start="253.86" data-duration="11.94">
+          <div class="shot-media clip" id="media-s4-2a" data-start="253.86" data-duration="4.44"><img id="img-s4-2a" class="shot-img" data-layout-allow-overflow src="assets/ai/ai_ch2_taohe.jpg" alt="旱塬溪流意象：苦咸水变甜洮河"></div>
+          <div class="shot-media clip" id="media-s4-2b" data-start="257.5" data-duration="8.3"><img id="img-s4-2b" class="shot-img" data-layout-allow-overflow src="assets/images/2021_dingxihu.jpg" alt="定西湖航拍：黄沙变绿洲"></div>
+        </div>
+      </section>
+
+      <!-- ============ S5 结尾 · 266.3–320.06s ============ -->
+      <section id="seg-s5" class="clip seg" data-start="266.3" data-duration="53.76" data-track-index="1">
+        <div class="clip shot" id="shot-s5-1" data-start="266.3" data-duration="17.2" data-hold>
+          <div class="shot-media" id="media-s5-1"><img id="img-s5-1" class="shot-img chart-img" data-layout-allow-overflow src="assets/charts/key_numbers.png" alt="四数字卡：9385 / 13015 / 75 个 / 552 万"></div>
+        </div>
+
+        <!-- s5-2 蒙太奇三槽：冻土照 → 梭梭草方格航拍 → 捧水特写；v1 悬浮 21.7 万亩卡已删除 -->
+        <div class="clip shot" id="shot-s5-2" data-start="283.0" data-duration="19.88">
+          <div class="shot-media clip" id="media-s5-2a" data-start="283.0" data-duration="6.76"><img id="img-s5-2a" class="shot-img" data-layout-allow-overflow src="assets/images/2021_jiudixia_intake.jpg" alt="九甸峡引洮工地：冻土"></div>
+        </div>
+
+        <div class="clip shot" id="shot-s5-3" data-start="302.38" data-duration="9.68">
+          <img id="img-s5-3" class="shot-img" data-layout-allow-overflow src="assets/ai/ai_ch4_wheat.jpg" alt="金色麦田夕阳意象">
+          <div class="plate plate--end"><div class="title-block" id="s5-3-title"><div class="film-title">足迹里的思政课</div></div></div>
+          <div class="plate plate--src"><div class="source" id="s5-3-src">素材来源：新华社 · 央视网 · 中新视频 · 敦煌研究院数字敦煌 · 甘肃省统计公报</div></div>
+        </div>
+
+        <!-- s5-4 片尾演职员卡（ComfyUI MOSS 生成，312.06–320.06：黑场升卡 + 揭示 + 流光 + 粒子） -->
+        <div class="clip shot" id="shot-s5-4" data-start="312.06" data-duration="8.0">
+          <div class="shot-media" id="media-s5-4">
+            <img id="img-s5-4" class="shot-img" data-layout-allow-overflow src="assets/images/ending_card.png" alt="片尾演职员卡：足迹里的思政课 · 甘肃足迹">
+            <div class="endcard-fx" id="endcard-fx" aria-hidden="true"><div class="sweep" id="endcard-sweep"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 轨道 2：字幕层（60 条句级 cue + 2 条同期声，逐句硬切） ============ -->
+      <!-- S0 -->
+      <section class="clip caption-cue" data-start="0" data-duration="4.14" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s0-1"><span class="caption-text">在甘肃中部的黄土高原上，有一片土地，</span></span></section>
+      <section class="clip caption-cue" data-start="4.66" data-duration="2.96" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s0-2"><span class="caption-text">曾被称作"苦瘠甲天下"。</span></span></section>
+      <section class="clip caption-cue" data-start="8.32" data-duration="5.06" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s0-3"><span class="caption-text">干旱、缺水、贫困，是几代人共同的记忆。</span></span></section>
+      <section class="clip caption-cue" data-start="14.04" data-duration="4.24" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s0-4"><span class="caption-text">半个多世纪里，这里的人们一直在和命运较劲——</span></span></section>
+      <section class="clip caption-cue" data-start="19.0" data-duration="3.84" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s0-5"><span class="caption-text">直到一串脚印，踏上了这片山梁。</span></span></section>
+      <!-- S1 -->
+      <section class="clip caption-cue" data-start="23.7" data-duration="4.1" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-1"><span class="caption-text">2013 年 2 月 3 日，农历小年。</span></span></section>
+      <section class="clip caption-cue" data-start="28.56" data-duration="2.14" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-2"><span class="caption-text">翻过九曲十八弯，</span></span></section>
+      <section class="clip caption-cue" data-start="31.3" data-duration="5.76" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-3"><span class="caption-text">来到海拔两千四百多米的定西市渭源县元古堆村——</span></span></section>
+      <section class="clip caption-cue" data-start="38.0" data-duration="2.64" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-4"><span class="caption-text">这个 447 户人家的村庄，</span></span></section>
+      <section class="clip caption-cue" data-start="41.2" data-duration="3.58" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-5"><span class="caption-text">当年的人均纯收入只有一千四百多元。</span></span></section>
+      <section class="clip caption-cue" data-start="45.38" data-duration="6.48" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-6"><span class="caption-text">村里收到一份特殊的年货清单：每户两袋面、两桶油、</span></span></section>
+      <section class="clip caption-cue" data-start="52.36" data-duration="3.96" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-7"><span class="caption-text">二十斤猪肉，娃娃们领到了书包和词典。</span></span></section>
+      <section class="clip caption-cue" data-start="57.18" data-duration="5.52" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s1-8"><span class="caption-text">而在村民家的水缸边，他郑重地尝了尝那口苦咸水。</span></span></section>
+      <!-- S2（1–15） -->
+      <section class="clip caption-cue" data-start="63.72" data-duration="4.96" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-1"><span class="caption-text">这一口苦咸水，牵出的是甘肃人盼了半个多世纪的梦。</span></span></section>
+      <section class="clip caption-cue" data-start="69.9" data-duration="3.66" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-2"><span class="caption-text">1958 年，引洮工程首次上马，</span></span></section>
+      <section class="clip caption-cue" data-start="74.08" data-duration="3.44" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-3"><span class="caption-text">又因技术与国力所限被迫下马；</span></span></section>
+      <section class="clip caption-cue" data-start="78.2" data-duration="4.6" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-4"><span class="caption-text">2006 年再度开工，110 公里的总干渠，</span></span></section>
+      <section class="clip caption-cue" data-start="82.8" data-duration="1.94" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-5"><span class="caption-text">87% 是隧洞——</span></span></section>
+      <section class="clip caption-cue" data-start="85.6" data-duration="5.06" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-6"><span class="caption-text">施工人员用冷冻法掘进，一天最多只能冻三厘米。</span></span></section>
+      <section class="clip caption-cue" data-start="91.64" data-duration="5.38" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-7"><span class="caption-text">工地上站着许多"洮二代"：他们的父辈曾参加老引洮，</span></span></section>
+      <section class="clip caption-cue" data-start="97.6" data-duration="4.36" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-8"><span class="caption-text">这一次，就是用指甲抠，也要把隧洞打通。</span></span></section>
+      <section class="clip caption-cue" data-start="102.82" data-duration="5.54" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-9"><span class="caption-text">2014 年底，一期通水，洮河水流进三百多万人的家；</span></span></section>
+      <section class="clip caption-cue" data-start="108.82" data-duration="5.92" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-10"><span class="caption-text">一位七十八岁的老母亲舀起一碗，轻抿一口，喜极而泣——</span></span></section>
+      <section class="clip caption-cue" data-start="115.8" data-duration="1.52" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-11"><span class="caption-text">"这水真甜"。</span></span></section>
+      <section class="clip caption-cue" data-start="118.24" data-duration="3.44" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-12"><span class="caption-text">2021 年 9 月，二期全线建成，</span></span></section>
+      <section class="clip caption-cue" data-start="121.68" data-duration="4.02" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-13"><span class="caption-text">工程覆盖甘肃五市十三县、六百多万人，</span></span></section>
+      <section class="clip caption-cue" data-start="125.7" data-duration="2.48" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-14"><span class="caption-text">约占全省人口的四分之一。</span></span></section>
+      <section class="clip caption-cue" data-start="128.76" data-duration="2.14" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-15"><span class="caption-text">水通了，路通了，</span></span></section>
+      <!-- 让位拍 1 同期声（131.01–143.01，不用旁白句） -->
+      <section class="clip caption-cue" data-start="131.01" data-duration="12.0" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-beat1"><span class="caption-text">【同期声】元古堆村种植户访谈</span></span></section>
+      <!-- S2（16–19） -->
+      <section class="clip caption-cue" data-start="143.12" data-duration="5.24" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-16"><span class="caption-text">产业来了：甘肃脱贫地区农村居民人均可支配收入，</span></span></section>
+      <section class="clip caption-cue" data-start="148.36" data-duration="3.14" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-17"><span class="caption-text">从 2020 年的 9385 元，</span></span></section>
+      <section class="clip caption-cue" data-start="151.5" data-duration="3.74" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-18"><span class="caption-text">涨到 2024 年的 13015 元；</span></span></section>
+      <section class="clip caption-cue" data-start="155.74" data-duration="5.26" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s2-19"><span class="caption-text">75 个贫困县全部摘帽，552 万人告别绝对贫困。</span></span></section>
+      <!-- S3（1–10） -->
+      <section class="clip caption-cue" data-start="161.98" data-duration="5.4" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-1"><span class="caption-text">2019 年 8 月 21 日，古浪县八步沙林场。</span></span></section>
+      <section class="clip caption-cue" data-start="167.96" data-duration="4.56" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-2"><span class="caption-text">三代治沙人讲起这段历史：1981 年，</span></span></section>
+      <section class="clip caption-cue" data-start="173.0" data-duration="5.44" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-3"><span class="caption-text">六位老汉以联户承包的形式挺进沙海，人背驴驮，</span></span></section>
+      <section class="clip caption-cue" data-start="178.98" data-duration="2.24" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-4"><span class="caption-text">把树苗一根根背进沙漠。</span></span></section>
+      <section class="clip caption-cue" data-start="181.76" data-duration="4.34" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-5"><span class="caption-text">四十多年过去，"六老汉"身后站起了三代人，</span></span></section>
+      <section class="clip caption-cue" data-start="186.1" data-duration="2.06" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-6"><span class="caption-text">荒漠变成了绿洲——</span></span></section>
+      <section class="clip caption-cue" data-start="188.8" data-duration="3.68" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-7"><span class="caption-text">八步沙累计治沙造林 21.7 万亩。</span></span></section>
+      <section class="clip caption-cue" data-start="192.96" data-duration="3.8" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-8"><span class="caption-text">他拿起开沟犁，走进草方格参与治沙，</span></span></section>
+      <section class="clip caption-cue" data-start="197.34" data-duration="5.56" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-9"><span class="caption-text">称赞他们是"新时代的愚公"："老百姓的幸福就是共产党</span></span></section>
+      <section class="clip caption-cue" data-start="202.9" data-duration="1.22" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-10"><span class="caption-text">的事业。</span></span></section>
+      <!-- 让位拍 2 同期声（204.37–219.37，不用旁白句） -->
+      <section class="clip caption-cue" data-start="204.37" data-duration="15.0" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-beat2"><span class="caption-text">【同期声】八步沙治沙现场讲话</span></span></section>
+      <!-- S3（11–14） -->
+      <section class="clip caption-cue" data-start="219.62" data-duration="4.78" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-11"><span class="caption-text">"同一片天空下，还有另一场守护：敦煌莫高窟，</span></span></section>
+      <section class="clip caption-cue" data-start="225.0" data-duration="2.96" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-12"><span class="caption-text">千年壁画在数字化中获得新生，</span></span></section>
+      <section class="clip caption-cue" data-start="228.58" data-duration="5.04" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-13"><span class="caption-text">"数字敦煌"让洞窟里的瑰宝走出戈壁、走向世界。</span></span></section>
+      <section class="clip caption-cue" data-start="234.78" data-duration="4.42" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s3-14"><span class="caption-text">生态与文脉，都是这片土地上被守护的根。</span></span></section>
+      <!-- S4 -->
+      <section class="clip caption-cue" data-start="240.34" data-duration="7.42" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s4-1"><span class="caption-text">"苦瘠甲天下的干坡坡，有洮河水变成金窝窝。"——</span></span></section>
+      <section class="clip caption-cue" data-start="248.84" data-duration="3.84" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s4-2"><span class="caption-text">这是定西人自己编的陇曲《圆洮梦》。</span></span></section>
+      <section class="clip caption-cue" data-start="253.86" data-duration="8.82" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s4-3"><span class="caption-text">从苦咸水到甜洮河，从黄沙到绿洲，脚印踏过的地方，</span></span></section>
+      <section class="clip caption-cue" data-start="263.06" data-duration="2.44" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s4-4"><span class="caption-text">正在长出新的故事。</span></span></section>
+      <!-- S5 -->
+      <section class="clip caption-cue" data-start="266.3" data-duration="3.04" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-1"><span class="caption-text">作为一个学数据科学的学生，</span></span></section>
+      <section class="clip caption-cue" data-start="269.8" data-duration="8.2" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-2"><span class="caption-text">我习惯用数字理解世界：9385 到 13015，</span></span></section>
+      <section class="clip caption-cue" data-start="278.94" data-duration="2.96" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-3"><span class="caption-text">四年之间是近四成的增长；</span></span></section>
+      <section class="clip caption-cue" data-start="283.0" data-duration="5.14" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-4"><span class="caption-text">21.7 万亩，是一代人压进草方格里的青春。</span></span></section>
+      <section class="clip caption-cue" data-start="289.06" data-duration="2.98" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-5"><span class="caption-text">但数字不会自己说话——</span></span></section>
+      <section class="clip caption-cue" data-start="292.6" data-duration="4.16" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-6"><span class="caption-text">是引洮工地上的冻土、八步沙格子里的梭梭、</span></span></section>
+      <section class="clip caption-cue" data-start="296.76" data-duration="4.8" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-7"><span class="caption-text">元古堆村水缸里的变化，让它们有了温度。</span></span></section>
+      <section class="clip caption-cue" data-start="302.38" data-duration="1.04" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-8"><span class="caption-text">足迹是什么？</span></span></section>
+      <section class="clip caption-cue" data-start="303.62" data-duration="2.92" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-9"><span class="caption-text">是把答案写在大地上的实践。</span></span></section>
+      <section class="clip caption-cue" data-start="307.46" data-duration="4.26" data-track-index="2" data-track-kind="captions"><span class="caption-pill" id="pill-s5-10"><span class="caption-text">而这串脚印，也正落在我们这一代人的路上。</span></span></section>
+
+      <!-- 轨道 9：整轨混音（钟离旁白 + 两个让位拍原声 + 统一 BGM，0→320.06，末 8s 为片尾卡尾段） -->
+      <audio id="audio-mix" src="assets/audio/mix_full.wav" data-start="0" data-duration="320.06" data-track-index="9"></audio>
+    </div>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        /* 注册：轨道 0 背景、轨道 1 段落与镜头、轨道 2 字幕、轨道 9 整轨混音 */
+        window.__timelines = window.__timelines || {};
+        window.__timelines["main"] = tl;
+
+        /* 新闻式斜切擦除（段间转场，0.5s）：从零宽斜边扫开到满幅 */
+        const WIPE_FROM = "polygon(0% 0%, 0% 0%, -25% 100%, -25% 100%)";
+        const WIPE_TO = "polygon(0% 0%, 125% 0%, 100% 100%, -25% 100%)";
+        function wipeIn(sel, at) {
+          /* clearProps：擦除完成后清掉残留 clipPath，稳态不留裁切路径，
+             文本不再进入 isClippedAway 探测路径（craftAudit line_unread 根因） */
+          tl.fromTo(sel, { clipPath: WIPE_FROM }, { clipPath: WIPE_TO, duration: 0.5, ease: "power2.inOut", clearProps: "clipPath" }, at);
+        }
+
+        /* 背景：金晕缓慢呼吸（有限次重复，seek 安全） */
+        tl.fromTo("#bg-glow", { opacity: 0.82 }, { opacity: 1, duration: 8, ease: "sine.inOut", yoyo: true, repeat: 40 }, 0);
+
+        /* ===== S0 开场 0–23.2s ===== */
+        tl.to("#shot-s0-1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 8.32);
+        tl.fromTo("#shot-s0-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 8.32);
+        tl.to("#shot-s0-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 22.7);
+        tl.fromTo("#s0-1-title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.4);
+        tl.fromTo("#s0-1-rule", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "power2.out" }, 1.4);
+        tl.fromTo(".fp", { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.6, ease: "power2.out" }, 19.0);
+
+        /* ===== S1 引入 23.7–63.22s（段间斜切擦除入） ===== */
+        wipeIn("#shot-s1-1", 23.7);
+        tl.to("#shot-s1-1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 45.38);
+        tl.fromTo("#shot-s1-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 45.38);
+        tl.to("#shot-s1-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 57.18);
+        tl.fromTo("#vid-s1-3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 57.18);
+        tl.to("#vid-s1-3", { opacity: 0, duration: 0.5, ease: "power2.in" }, 62.72);
+        tl.fromTo("#s1-1-bug", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }, 24.3);
+
+        /* ===== S2 攻坚 63.72–161.48s ===== */
+        wipeIn("#vid-s2-1a", 63.72);
+        tl.to("#vid-s2-1a", { opacity: 0, duration: 0.5, ease: "power2.in" }, 78.2);
+        tl.fromTo("#shot-s2-1b", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 78.2);
+        tl.to("#shot-s2-1b", { opacity: 0, duration: 0.5, ease: "power2.in" }, 91.64);
+        tl.fromTo("#vid-s2-1c", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 91.64);
+        tl.to("#vid-s2-1c", { opacity: 0, duration: 0.5, ease: "power2.in" }, 102.82);
+        tl.fromTo("#shot-s2-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 102.82);
+        tl.to("#shot-s2-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 118.24);
+        tl.fromTo("#vid-s2-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 102.82);
+        tl.to("#vid-s2-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 118.24);
+        tl.fromTo("#shot-s2-3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 118.24);
+        tl.to("#shot-s2-3", { opacity: 0, duration: 0.5, ease: "power2.in" }, 128.46);
+        tl.fromTo("#vid-s2-4a", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 128.46);
+        tl.to("#vid-s2-4a", { opacity: 0, duration: 0.5, ease: "power2.in" }, 131.01);
+        tl.fromTo("#vid-beat1", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 131.01);
+        tl.to("#vid-beat1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 143.12);
+        tl.fromTo("#shot-s2-4b", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 143.12);
+        tl.to("#shot-s2-4b", { opacity: 0, duration: 0.5, ease: "power2.in" }, 160.98);
+
+        /* s2-1b 数据板：三行依次上屏 + count-up（对应句 4/5/6） */
+        tl.fromTo("#s2-1b-r1", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 78.6);
+        tl.fromTo("#s2-1b-r2", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 82.8);
+        tl.fromTo("#s2-1b-r3", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 85.6);
+
+        /* 下三分之一引语条（句 11 前上屏，随镜头淡出） */
+        tl.fromTo("#s2-2-quote", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 115.4);
+
+        /* ===== S3 生态文明 161.98–239.7s ===== */
+        wipeIn("#vid-s3-1", 161.98);
+        tl.to("#vid-s3-1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 187.66);
+        tl.fromTo("#shot-s3-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 188.8);
+        tl.to("#shot-s3-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 192.96);
+        tl.fromTo("#vid-s3-3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 192.96);
+        tl.to("#vid-s3-3", { opacity: 0, duration: 0.5, ease: "power2.in" }, 197.34);
+        tl.fromTo("#shot-s3-4", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 197.34);
+        tl.to("#shot-s3-4", { opacity: 0, duration: 0.5, ease: "power2.in" }, 203.87);
+        tl.fromTo("#s3-4-quote", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 197.9);
+        tl.fromTo("#vid-beat2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 204.37);
+        /* 让位拍 2 → 敦煌A：硬切（新闻切镜），敦煌A → 敦煌B：叠化 */
+        tl.to("#vid-s3-5", { opacity: 0, duration: 0.5, ease: "power2.in" }, 228.58);
+        tl.fromTo("#vid-s3-6", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 228.58);
+        tl.to("#vid-s3-6", { opacity: 0, duration: 0.5, ease: "power2.in" }, 239.2);
+
+        /* ===== S4 升华 240.2–265.8s ===== */
+        wipeIn("#shot-s4-1", 240.2);
+        tl.to("#shot-s4-1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 253.86);
+        tl.fromTo("#shot-s4-2", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 253.86);
+        tl.to("#shot-s4-2", { opacity: 0, duration: 0.5, ease: "power2.in" }, 265.3);
+        tl.to("#media-s4-2a", { opacity: 0, duration: 0.8, ease: "power2.inOut" }, 257.5);
+        tl.fromTo("#media-s4-2b", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.inOut" }, 257.5);
+
+        /* ===== S5 结尾 266.3–320.06s ===== */
+        wipeIn("#shot-s5-1", 266.3);
+        tl.to("#shot-s5-1", { opacity: 0, duration: 0.5, ease: "power2.in" }, 283.0);
+        tl.fromTo("#media-s5-1", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "power3.inOut", clearProps: "clipPath" }, 266.6);
+        tl.fromTo("#media-s5-2a", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 283.0);
+        tl.to("#media-s5-2a", { opacity: 0, duration: 0.5, ease: "power2.in" }, 289.06);
+        tl.fromTo("#vid-s5-2b", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 289.06);
+        tl.to("#vid-s5-2b", { opacity: 0, duration: 0.5, ease: "power2.in" }, 296.56);
+        tl.fromTo("#vid-s5-2c", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 296.76);
+        tl.to("#vid-s5-2c", { opacity: 0, duration: 0.5, ease: "power2.in" }, 302.38);
+        tl.fromTo("#shot-s5-3", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 302.38);
+        tl.fromTo("#s5-3-title", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.out" }, 303.6);
+        tl.fromTo("#s5-3-src", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 304.6);
+
+        /* ===== S5-4 片尾演职员卡 312.06–320.06s =====
+           黑场升卡 → 顶部向下揭示（片名先出、名单后出）→ 缓推 + 金尘漂浮 + 一道流光 → 尾部淡出归黑 */
+        tl.fromTo("#shot-s5-4", { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "power2.out" }, 312.06);
+        tl.fromTo("#media-s5-4", { clipPath: "inset(0 0 100% 0)" },
+          { clipPath: "inset(0 0 0% 0)", duration: 1.6, ease: "power3.inOut", clearProps: "clipPath" }, 312.3);
+        tl.fromTo("#img-s5-4", { scale: 1 }, { scale: 1.05, duration: 8, ease: "none" }, 312.06);
+        tl.fromTo("#endcard-sweep", { xPercent: -170, opacity: 0 },
+          { opacity: 0.9, duration: 0.5, ease: "power1.out" }, 315.0);
+        tl.to("#endcard-sweep", { xPercent: 560, duration: 1.7, ease: "power1.inOut" }, 315.0);
+        tl.to("#endcard-sweep", { opacity: 0, duration: 0.5, ease: "power1.in" }, 316.2);
+        /* 金尘粒子：位置/尺寸定数生成，三段 tween（上升 + 渐显 + 渐隐），全部挂在主时间轴上 */
+        var MOTES = [
+          [8, 72], [14, 55], [22, 83], [31, 64], [40, 88], [47, 58], [55, 80],
+          [63, 66], [71, 85], [78, 54], [86, 76], [92, 62], [18, 46], [83, 44]
+        ];
+        MOTES.forEach(function (p, i) {
+          var m = document.createElement("span");
+          m.className = "mote";
+          m.style.left = p[0] + "%";
+          m.style.top = p[1] + "%";
+          var s = (3 + (i % 3) * 1.5).toFixed(1);
+          m.style.width = m.style.height = s + "px";
+          document.getElementById("endcard-fx").appendChild(m);
+          var dur = 5.4 + (i % 5) * 0.8;
+          var t0 = 312.5 + (i % 7) * 0.45;
+          tl.fromTo(m, { y: 26 }, { y: -30, duration: dur, ease: "none" }, t0);
+          tl.fromTo(m, { opacity: 0 }, { opacity: 0.55, duration: dur * 0.4, ease: "power1.out" }, t0);
+          tl.to(m, { opacity: 0, duration: dur * 0.4, ease: "power1.in" }, t0 + dur * 0.55);
+        });
+        tl.to("#shot-s5-4", { opacity: 0, duration: 1.06, ease: "power2.in" }, 319.0);
+
+        /* ===== Ken Burns：静态照片缓推（tween clip 内的 img，不碰计时元素） =====
+           图表（donut/收入/数字卡）与信息板静读不动，走 data-hold；视频镜走入点起势 */
+        tl.fromTo("#img-s0-1", { scale: 1 }, { scale: 1.06, duration: 8.82, ease: "none" }, 0);
+        tl.fromTo("#img-s0-2", { scale: 1.05 }, { scale: 1, duration: 14.88, ease: "none" }, 8.32);
+        tl.fromTo("#img-s1-1", { scale: 1 }, { scale: 1.07, duration: 22.18, ease: "none" }, 23.7);
+        tl.fromTo("#img-s1-2", { scale: 1.05 }, { scale: 1, duration: 12.3, ease: "none" }, 45.38);
+        tl.fromTo("#img-s3-4", { scale: 1 }, { scale: 1.06, duration: 7.03, ease: "none" }, 197.34);
+        tl.fromTo("#img-s4-1", { scale: 1.05 }, { scale: 1, duration: 14.16, ease: "none" }, 240.2);
+        tl.fromTo("#img-s4-2a", { scale: 1.01 }, { scale: 1.05, duration: 4.44, ease: "none" }, 253.86);
+        tl.fromTo("#img-s4-2b", { scale: 1.04 }, { scale: 1, duration: 8.3, ease: "none" }, 257.5);
+        tl.fromTo("#img-s5-2a", { scale: 1 }, { scale: 1.05, duration: 6.76, ease: "none" }, 283.0);
+        tl.fromTo("#img-s5-3", { scale: 1 }, { scale: 1.04, duration: 9.68, ease: "none" }, 302.38);
+
+        /* ===== 视频入点起势：轻微推近落定（视频本身有动态，不叠重动画） ===== */
+        tl.fromTo("#vid-s1-3", { scale: 1.05 }, { scale: 1, duration: 1.6, ease: "power2.out" }, 57.18);
+        tl.fromTo("#vid-s2-1a", { scale: 1.05 }, { scale: 1, duration: 1.8, ease: "power2.out" }, 63.72);
+        tl.fromTo("#vid-s2-1c", { scale: 1.05 }, { scale: 1, duration: 1.8, ease: "power2.out" }, 91.64);
+        tl.fromTo("#vid-s2-2", { scale: 1.05 }, { scale: 1, duration: 1.6, ease: "power2.out" }, 102.82);
+        tl.fromTo("#vid-s2-4a", { scale: 1.05 }, { scale: 1, duration: 1.2, ease: "power2.out" }, 128.46);
+        tl.fromTo("#vid-beat1", { scale: 1.05 }, { scale: 1, duration: 1.6, ease: "power2.out" }, 131.01);
+        tl.fromTo("#vid-s3-1", { scale: 1.05 }, { scale: 1, duration: 1.8, ease: "power2.out" }, 161.98);
+        tl.fromTo("#vid-s3-3", { scale: 1.05 }, { scale: 1, duration: 1.4, ease: "power2.out" }, 192.96);
+        tl.fromTo("#vid-beat2", { scale: 1.05 }, { scale: 1, duration: 1.6, ease: "power2.out" }, 204.37);
+        tl.fromTo("#vid-s3-6", { scale: 1.05 }, { scale: 1, duration: 1.6, ease: "power2.out" }, 228.58);
+
+        /* ===== 关键数字滚动：text 纯函数式更新，终值与原文逐字一致，seek 可复现 ===== */
+        function countUp(sel, from, to, at, dur, fmt) {
+          var el = document.querySelector(sel);
+          if (!el) return;
+          var state = { v: from };
+          tl.to(state, { v: to, duration: dur, ease: "power1.out",
+            onUpdate: function () { el.textContent = fmt(state.v); } }, at);
+        }
+        countUp("#n-s2-1", 0, 110, 78.6, 1.5, function (v) { return Math.round(v) + " km"; });
+        countUp("#n-s2-2", 0, 87, 82.8, 1.0, function (v) { return Math.round(v) + "%"; });
+        countUp("#n-s2-3", 0, 3, 85.6, 2.2, function (v) { return Math.round(v) + " cm/天"; });
+        countUp("#n-s3-2", 0, 21.7, 188.9, 2.0, function (v) { return v.toFixed(1) + " 万亩"; });
+
+        /* ===== 字幕：62 条句级 cue（60 旁白句 + 2 同期声），入淡 0.35s、句间硬切 ===== */
+        const CUES = [
+          ["pill-s0-1", 0], ["pill-s0-2", 4.66], ["pill-s0-3", 8.32], ["pill-s0-4", 14.04], ["pill-s0-5", 19.0],
+          ["pill-s1-1", 23.7], ["pill-s1-2", 28.56], ["pill-s1-3", 31.3], ["pill-s1-4", 38.0], ["pill-s1-5", 41.2],
+          ["pill-s1-6", 45.38], ["pill-s1-7", 52.36], ["pill-s1-8", 57.18],
+          ["pill-s2-1", 63.72], ["pill-s2-2", 69.9], ["pill-s2-3", 74.08], ["pill-s2-4", 78.2], ["pill-s2-5", 82.8],
+          ["pill-s2-6", 85.6], ["pill-s2-7", 91.64], ["pill-s2-8", 97.6], ["pill-s2-9", 102.82], ["pill-s2-10", 108.82],
+          ["pill-s2-11", 115.8], ["pill-s2-12", 118.24], ["pill-s2-13", 121.68], ["pill-s2-14", 125.7], ["pill-s2-15", 128.76],
+          ["pill-beat1", 131.01],
+          ["pill-s2-16", 143.12], ["pill-s2-17", 148.36], ["pill-s2-18", 151.5], ["pill-s2-19", 155.74],
+          ["pill-s3-1", 161.98], ["pill-s3-2", 167.96], ["pill-s3-3", 173.0], ["pill-s3-4", 178.98], ["pill-s3-5", 181.76],
+          ["pill-s3-6", 186.1], ["pill-s3-7", 188.8], ["pill-s3-8", 192.96], ["pill-s3-9", 197.34], ["pill-s3-10", 202.9],
+          ["pill-beat2", 204.37],
+          ["pill-s3-11", 219.62], ["pill-s3-12", 225.0], ["pill-s3-13", 228.58], ["pill-s3-14", 234.78],
+          ["pill-s4-1", 240.34], ["pill-s4-2", 248.84], ["pill-s4-3", 253.86], ["pill-s4-4", 263.06],
+          ["pill-s5-1", 266.3], ["pill-s5-2", 269.8], ["pill-s5-3", 278.94], ["pill-s5-4", 283.0], ["pill-s5-5", 289.06],
+          ["pill-s5-6", 292.6], ["pill-s5-7", 296.76], ["pill-s5-8", 302.38], ["pill-s5-9", 303.62], ["pill-s5-10", 307.46]
+        ];
+        CUES.forEach(function (cue) {
+          tl.fromTo("#" + cue[0], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, cue[1]);
+        });
+
+        /* ===== 段落间隙（0.5s 呼吸口）：金晕轻搏一次，段落切换呈呼吸而非硬切 ===== */
+        [[23.2, 23.7], [63.22, 63.72], [161.48, 161.98], [239.7, 240.2], [265.8, 266.3]].forEach(function (g) {
+          tl.to("#bg-glow", { scale: 1.05, duration: 0.5, ease: "power2.out" }, g[0]);
+          tl.to("#bg-glow", { scale: 1, duration: 0.9, ease: "power2.inOut" }, g[1]);
+        });
+
+        /* ===== 收尾：麦田末镜淡出至深底（310.66–312.06），片尾卡接力 312.06–320.06，末 1.06s 归黑 ===== */
+        tl.to("#shot-s5-3", { opacity: 0, duration: 1.4, ease: "power2.in" }, 310.66);
+
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>

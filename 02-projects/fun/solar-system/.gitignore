@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 测试/工具缓存
+.pytest_cache/
+.coverage
+
+# 生成的星图（可由 demo.py 随时重新生成）
+output/*.svg
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

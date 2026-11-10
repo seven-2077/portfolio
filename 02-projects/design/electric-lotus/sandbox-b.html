@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sandbox-b · 车漆 + 背景 rig 测试</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./node_modules/three/build/three.module.js",
+          "three/addons/": "./node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+      html, body { margin: 0; height: 100%; background: #06080c; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; }
+      canvas { display: block; }
+      #panel {
+        position: fixed; left: 12px; top: 12px; z-index: 10;
+        background: rgba(10, 14, 20, 0.82); color: #dfe6ef;
+        border: 1px solid #26313f; border-radius: 10px;
+        padding: 12px 14px; width: 250px; backdrop-filter: blur(6px);
+      }
+      #panel h3 { margin: 4px 0 8px; font-size: 13px; letter-spacing: .06em; color: #8fb8ff; font-weight: 600; }
+      #panel .grp { margin-bottom: 12px; }
+      .row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+      .row label { width: 78px; color: #9fb0c4; font-size: 12px; }
+      .row .val { width: 34px; text-align: right; color: #ffd9a0; font-variant-numeric: tabular-nums; }
+      input[type=range] { flex: 1; }
+      button {
+        background: #1a2532; color: #dfe6ef; border: 1px solid #31435a;
+        border-radius: 6px; padding: 5px 9px; cursor: pointer; font-size: 12px;
+      }
+      button:hover { background: #26374c; }
+      .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+      #err {
+        position: fixed; left: 12px; bottom: 12px; z-index: 10; max-width: 60vw;
+        color: #ff8080; font: 12px/1.5 monospace; white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="panel">
+      <div class="grp">
+        <h3>背景 Backgrounds</h3>
+        <div class="btns" id="bg-btns"></div>
+      </div>
+      <div class="grp">
+        <h3>漆面 setPaint</h3>
+        <div class="row"><label>hue</label><input type="range" id="hue" min="0" max="1" step="0.001" value="0.085"><span class="val" id="hue-v"></span></div>
+        <div class="row"><label>saturation</label><input type="range" id="sat" min="0" max="1" step="0.001" value="0.92"><span class="val" id="sat-v"></span></div>
+        <div class="row"><label>metalness</label><input type="range" id="metal" min="0" max="1" step="0.001" value="0.9"><span class="val" id="metal-v"></span></div>
+        <div class="row"><label>clearcoat</label><input type="range" id="cc" min="0" max="1" step="0.001" value="1"><span class="val" id="cc-v"></span></div>
+        <div class="row"><label>clearRough</label><input type="range" id="ccr" min="0" max="1" step="0.001" value="0.03"><span class="val" id="ccr-v"></span></div>
+      </div>
+      <div class="grp">
+        <h3>预设 PAINT_PRESETS</h3>
+        <div class="btns" id="preset-btns"></div>
+      </div>
+      <div class="grp">
+        <div class="btns"><button id="reapply">重新 applyRoles(proxy)</button></div>
+      </div>
+    </div>
+    <div id="err"></div>
+
+    <script type="module">
+      window.__sandboxErrors = [];
+      const showErr = (m) => {
+        window.__sandboxErrors.push(String(m));
+        document.getElementById("err").textContent = window.__sandboxErrors.join("\n");
+      };
+      window.addEventListener("error", (e) => showErr("ERROR: " + (e.message || e.reason || e)));
+      window.addEventListener("unhandledrejection", (e) => showErr("REJECT: " + (e.reason || e)));
+
+      (async () => {
+        try {
+          const THREE = await import("three");
+          const { OrbitControls } = await import("three/addons/controls/OrbitControls.js");
+          const { createPaintMaterial, setPaint, PAINT_PRESETS, applyPreset, applyRoles } =
+            await import("./src/materials/paint.js");
+          const { applyBackground, BACKGROUND_NAMES } = await import("./src/backgrounds.js");
+
+          // ---- renderer ----
+          const renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.05;
+          document.body.appendChild(renderer.domElement);
+
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 600);
+          camera.position.set(6.5, 2.6, 7.5);
+          const controls = new OrbitControls(camera, renderer.domElement);
+          controls.target.set(0, 0.7, 0);
+          controls.enableDamping = true;
+
+          // ---- 代理车：楔形车身 + 气泡座舱 + 四轮，带契约 userData 标签 ----
+          const proxy = new THREE.Group();
+          const mk = (geo, partName, materialRole, pos, rot) => {
+            const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x888888 }));
+            m.userData.partName = partName;
+            m.userData.materialRole = materialRole;
+            if (pos) m.position.set(pos[0], pos[1], pos[2]);
+            if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+            proxy.add(m);
+            return m;
+          };
+
+          // 楔形车身（前低后高）：box 顶点位移成楔形
+          const bodyGeo = new THREE.BoxGeometry(4.2, 0.7, 1.9);
+          {
+            const p = bodyGeo.attributes.position;
+            for (let i = 0; i < p.count; i++) {
+              const x = p.getX(i);
+              if (x > 1.5 && p.getY(i) > 0) p.setY(i, p.getY(i) - 0.32); // 车头下压
+              if (x < -1.5 && p.getY(i) > 0) p.setY(i, p.getY(i) + 0.14); // 车尾上抬
+            }
+            bodyGeo.computeVertexNormals();
+          }
+          mk(bodyGeo, "shell", "paint", [0, 0.72, 0]);
+          mk(new THREE.BoxGeometry(1.1, 0.28, 1.7), "hood_front", "paint", [1.7, 0.6, 0], [0, 0, -0.12]);
+          mk(new THREE.BoxGeometry(1.6, 0.5, 0.12), "door_left", "paint", [-0.2, 0.7, 0.95]);
+          mk(new THREE.BoxGeometry(1.6, 0.5, 0.12), "door_right", "paint", [-0.2, 0.7, -0.95]);
+
+          // 气泡座舱（玻璃）
+          const canopy = new THREE.Mesh(
+            new THREE.SphereGeometry(0.7, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.55),
+            new THREE.MeshStandardMaterial({ color: 0x888888 }),
+          );
+          canopy.scale.set(1.5, 1.0, 1.0);
+          canopy.userData.partName = "canopy"; canopy.userData.materialRole = "glass";
+          canopy.position.set(-0.2, 1.0, 0); proxy.add(canopy);
+
+          mk(new THREE.BoxGeometry(2.4, 0.1, 0.14), "band_left", "trim", [-0.1, 1.0, 0.92]);
+          mk(new THREE.BoxGeometry(2.4, 0.1, 0.14), "band_right", "trim", [-0.1, 1.0, -0.92]);
+          mk(new THREE.BoxGeometry(0.7, 0.1, 1.7), "wing_rear", "paint", [-2.1, 1.15, 0]);
+          mk(new THREE.BoxGeometry(0.6, 0.3, 1.6), "diffuser_rear", "carbon", [-2.0, 0.4, 0]);
+          mk(new THREE.BoxGeometry(1.4, 0.2, 1.4), "battery_pack", "metal", [0, 0.42, 0]);
+          mk(new THREE.BoxGeometry(0.5, 0.5, 0.5), "seat_center", "trim", [-0.4, 1.1, 0]);
+          mk(new THREE.BoxGeometry(0.4, 0.45, 0.4), "seat_left", "trim", [-0.5, 1.05, 0.5]);
+          mk(new THREE.BoxGeometry(0.4, 0.45, 0.4), "seat_right", "trim", [-0.5, 1.05, -0.5]);
+          mk(new THREE.BoxGeometry(0.14, 0.18, 0.5), "light_front_left", "light", [2.12, 0.7, 0.6]);
+          mk(new THREE.BoxGeometry(0.14, 0.18, 0.5), "light_front_right", "light", [2.12, 0.7, -0.6]);
+          mk(new THREE.BoxGeometry(0.12, 0.14, 1.6), "light_rear_bar", "light", [-2.16, 0.9, 0]);
+
+          // 四轮（圆柱）
+          const wheel = (partName, x, z) => {
+            const w = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.5, 0.5, 0.34, 24),
+              new THREE.MeshStandardMaterial({ color: 0x888888 }),
+            );
+            w.rotation.x = Math.PI / 2;
+            w.userData.partName = partName; w.userData.materialRole = "tire";
+            w.position.set(x, 0.5, z); proxy.add(w);
+          };
+          wheel("wheel_FL", 1.35, 0.98);
+          wheel("wheel_FR", 1.35, -0.98);
+          wheel("wheel_RL", -1.35, 0.98);
+          wheel("wheel_RR", -1.35, -0.98);
+
+          scene.add(proxy);
+
+          // ---- 套用角色材质（共享实例）----
+          const mats = applyRoles(proxy);
+          createPaintMaterial();
+
+          // ---- 背景 ----
+          const bgState = {};
+          const setBg = (n) => {
+            if (bgState.api) bgState.api.dispose();
+            bgState.api = applyBackground(scene, n, renderer);
+            document.title = "sandbox-b · " + n;
+          };
+
+          // ---- 控件 ----
+          const bgWrap = document.getElementById("bg-btns");
+          for (const n of BACKGROUND_NAMES) {
+            const b = document.createElement("button");
+            b.textContent = n;
+            b.onclick = () => setBg(n);
+            bgWrap.appendChild(b);
+          }
+          const presetWrap = document.getElementById("preset-btns");
+          for (const p of PAINT_PRESETS) {
+            const b = document.createElement("button");
+            b.textContent = p.name;
+            b.onclick = () => {
+              applyPreset(p.id);
+              syncSliders(p);
+            };
+            presetWrap.appendChild(b);
+          }
+
+          const els = {
+            hue: document.getElementById("hue"), sat: document.getElementById("sat"),
+            metal: document.getElementById("metal"), cc: document.getElementById("cc"),
+            ccr: document.getElementById("ccr"),
+          };
+          const vals = {
+            hue: document.getElementById("hue-v"), sat: document.getElementById("sat-v"),
+            metal: document.getElementById("metal-v"), cc: document.getElementById("cc-v"),
+            ccr: document.getElementById("ccr-v"),
+          };
+          const readPaint = () => setPaint({
+            hue: +els.hue.value, saturation: +els.sat.value,
+            metalness: +els.metal.value, clearcoat: +els.cc.value,
+            clearcoatRoughness: +els.ccr.value,
+          });
+          const syncSliders = (p) => {
+            if (!p) return;
+            els.hue.value = p.hue; els.sat.value = p.saturation;
+            els.metal.value = p.metalness; els.cc.value = p.clearcoat;
+            els.ccr.value = p.clearcoatRoughness;
+            updateVals();
+          };
+          const updateVals = () => {
+            for (const k in els) vals[k].textContent = (+els[k].value).toFixed(2);
+          };
+          for (const k in els) els[k].addEventListener("input", () => { readPaint(); updateVals(); });
+          updateVals();
+          document.getElementById("reapply").onclick = () => applyRoles(proxy);
+
+          // ---- 循环 ----
+          window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+          });
+
+          setBg("auto_show");
+
+          // 供 CDP / 自动化取用
+          window.__sandbox = {
+            THREE, scene, renderer, camera, proxy, mats,
+            setBg, setPaint, applyPreset, applyRoles, createPaintMaterial,
+            PAINT_PRESETS, BACKGROUND_NAMES,
+          };
+          window.__screenshot = () => renderer.domElement.toDataURL("image/png");
+          window.__ready = true;
+
+          renderer.setAnimationLoop(() => {
+            controls.update();
+            proxy.rotation.y += 0.003; // 让薄片随视角滚动，验证闪烁非静态噪点
+            renderer.render(scene, camera);
+          });
+        } catch (e) {
+          showErr("INIT: " + (e && e.stack ? e.stack : e));
+        }
+      })();
+    </script>
+  </body>
+</html>

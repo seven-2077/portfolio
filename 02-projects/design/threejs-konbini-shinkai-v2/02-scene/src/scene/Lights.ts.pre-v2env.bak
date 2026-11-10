@@ -1,0 +1,154 @@
+import {
+  AmbientLight,
+  DirectionalLight,
+  FogExp2,
+  Group,
+  HemisphereLight,
+  PCFSoftShadowMap,
+  PointLight,
+  RectAreaLight,
+  type Scene,
+  type WebGLRenderer,
+} from 'three';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import type { EnvUniformSnapshot } from '../env/Environment';
+import { Hex } from '../env/palette';
+
+/**
+ * Layered lighting: sky hemi, amber key, awning/sign warm, fridge cyan,
+ * street lamp, interior soffits, neighbor warmth.
+ */
+export class Lights {
+  readonly group = new Group();
+
+  private hemi: HemisphereLight;
+  private amb: AmbientLight;
+  private sun: DirectionalLight;
+  private fill: DirectionalLight;
+  private ceiling: PointLight[] = [];
+  private fridge: RectAreaLight;
+  private awning: RectAreaLight;
+  private sign: PointLight;
+  private street: PointLight;
+  private vendor: PointLight;
+  private neighbor: PointLight;
+  private entry: PointLight;
+  private fog: FogExp2 | null = null;
+
+  constructor() {
+    RectAreaLightUniformsLib.init();
+    this.group.name = 'lights';
+
+    this.hemi = new HemisphereLight(Hex.deepIndigo, Hex.wetBlack, 0.4);
+    this.group.add(this.hemi);
+
+    this.amb = new AmbientLight(Hex.warmPaper, 0.08);
+    this.group.add(this.amb);
+
+    this.sun = new DirectionalLight(Hex.amberKey, 0.9);
+    this.sun.position.set(-10, 6, 12);
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.set(1024, 1024);
+    this.sun.shadow.camera.near = 1;
+    this.sun.shadow.camera.far = 40;
+    this.sun.shadow.camera.left = -16;
+    this.sun.shadow.camera.right = 16;
+    this.sun.shadow.camera.top = 12;
+    this.sun.shadow.camera.bottom = -8;
+    this.sun.shadow.bias = -0.0004;
+    this.group.add(this.sun);
+
+    this.fill = new DirectionalLight(Hex.airPurple, 0.14);
+    this.fill.position.set(8, 6, -4);
+    this.group.add(this.fill);
+
+    for (const z of [-1.6, -3.4, -5.2]) {
+      for (const x of [-2.6, 0, 2.6]) {
+        const p = new PointLight(Hex.warmPaper, 2.2, 7.2, 1.7);
+        p.position.set(x, 2.55, z);
+        this.group.add(p);
+        this.ceiling.push(p);
+      }
+    }
+
+    this.fridge = new RectAreaLight(Hex.fridgeCyan, 5.5, 6.4, 0.5);
+    this.fridge.position.set(0, 1.15, -6.7);
+    this.fridge.lookAt(0, 1.15, 0);
+    this.group.add(this.fridge);
+
+    this.awning = new RectAreaLight(Hex.warmPaper, 6, 8.6, 1.1);
+    this.awning.position.set(0, 2.55, 0.95);
+    this.awning.lookAt(0, 0.4, 1.6);
+    this.group.add(this.awning);
+
+    this.sign = new PointLight(Hex.warmPaper, 1.4, 8, 1.8);
+    this.sign.position.set(0, 3.2, 0.8);
+    this.group.add(this.sign);
+
+    this.street = new PointLight(Hex.amberKey, 2.2, 16, 1.6);
+    this.street.position.set(5.15, 4.78, 3.8);
+    this.street.castShadow = false;
+    this.group.add(this.street);
+
+    this.vendor = new PointLight(Hex.fridgeCyan, 0.7, 4, 2);
+    this.vendor.position.set(-4.55, 1.85, 1.35);
+    this.group.add(this.vendor);
+
+    this.entry = new PointLight(0xffe2b0, 2.4, 6.5, 1.6);
+    this.entry.position.set(0, 2.15, 1.15);
+    this.group.add(this.entry);
+
+    this.neighbor = new PointLight(0xffc878, 1.6, 8, 1.8);
+    this.neighbor.position.set(-8.2, 1.4, -0.4);
+    this.group.add(this.neighbor);
+  }
+
+  enableShadows(renderer: WebGLRenderer): void {
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFSoftShadowMap;
+  }
+
+  attachFog(scene: Scene): void {
+    this.fog = new FogExp2(Hex.airPurple, 0.02);
+    scene.fog = this.fog;
+  }
+
+  applyEnvironment(u: EnvUniformSnapshot): void {
+    this.hemi.color.setRGB(u.hemiSky[0], u.hemiSky[1], u.hemiSky[2]);
+    this.hemi.groundColor.setRGB(u.hemiGround[0], u.hemiGround[1], u.hemiGround[2]);
+    this.hemi.intensity = u.hemiIntensity;
+
+    this.amb.intensity = u.ambientIntensity;
+
+    this.sun.color.setRGB(u.sunColor[0], u.sunColor[1], u.sunColor[2]);
+    this.sun.intensity = u.sunIntensity * (1 + u.twilight * 0.55);
+    this.sun.position.set(
+      u.sunDir[0] * 22,
+      Math.max(u.sunDir[1] * 22, 1.2),
+      u.sunDir[2] * 22,
+    );
+
+    this.fill.intensity = u.fillIntensity;
+
+    const ceil = 2.15 * u.interiorBoost;
+    for (const p of this.ceiling) p.intensity = ceil;
+
+    this.fridge.intensity = 5.2 * u.emissiveBoost * 0.8;
+    this.awning.intensity = 7.5 + u.interiorBoost * 3.2;
+    this.sign.intensity = 1.4 + u.emissiveBoost * 0.9;
+    this.street.intensity = 1.5 * u.streetLampBoost;
+    this.vendor.intensity = 0.45 + u.emissiveBoost * 0.35;
+    this.neighbor.intensity = 0.8 + u.nightFactor * 1.1 + u.twilight * 0.3;
+    this.entry.intensity = 1.6 + u.interiorBoost * 1.1 + u.twilight * 0.4;
+
+    if (this.fog) {
+      this.fog.density = u.fogDensity;
+      this.fog.color.setRGB(u.fogColor[0], u.fogColor[1], u.fogColor[2]);
+    }
+  }
+
+  dispose(): void {
+    this.group.clear();
+    this.ceiling = [];
+  }
+}

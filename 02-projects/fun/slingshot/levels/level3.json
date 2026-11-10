@@ -1,0 +1,17 @@
+{
+  "name": "悬挑",
+  "world": { "width": 96, "height": 32, "gravity": 30 },
+  "ground_y": 28,
+  "sling": [10, 24],
+  "ammo": 3,
+  "blocks": [
+    { "x": 50, "y": 26, "w": 2, "h": 4, "material": "stone" },
+    { "x": 56, "y": 23.5, "w": 14, "h": 1, "material": "wood" },
+    { "x": 62, "y": 22.5, "w": 1, "h": 1, "material": "glass" },
+    { "x": 62, "y": 21.5, "w": 1, "h": 1, "material": "stone" },
+    { "x": 54, "y": 22.5, "w": 1, "h": 1, "material": "wood" },
+    { "x": 54, "y": 21.5, "w": 1, "h": 1, "material": "glass" },
+    { "x": 54, "y": 20.5, "w": 1, "h": 1, "material": "glass" },
+    { "x": 51.5, "y": 22.5, "w": 1, "h": 1, "material": "stone" }
+  ]
+}
